@@ -1,0 +1,17 @@
+{
+  "tabWidth": 2,
+  "singleQuote": true,
+  "semi": true,
+  "trailingComma": "es5",
+  "jsxSingleQuote": true,
+  "bracketSpacing": true,
+  "printWidth": 150,
+  "importOrder": [
+    "^(@hooks)",
+    "^((lodash)|(classnames))",
+    "^(.*)(\\.(css|scss)|(i18n))$"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderCaseInsensitive": true
+}

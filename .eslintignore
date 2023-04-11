@@ -1,0 +1,8 @@
+node_modules
+build
+dist
+public
+src/common
+src/libs
+src/icon-icomoon
+src/web3
