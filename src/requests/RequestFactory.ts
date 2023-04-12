@@ -1,4 +1,10 @@
-const requestMap = {};
+import AccountRequest from './AccountRequest';
+import ReceiptRequest from './ReceiptRequest';
+
+const requestMap = {
+  AccountRequest,
+  ReceiptRequest,
+};
 
 const instances = {};
 

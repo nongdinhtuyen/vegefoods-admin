@@ -6,7 +6,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "prod": "vite -m production",
     "staging": "vite -m staging",
     "build-dev": "vite build -m development",

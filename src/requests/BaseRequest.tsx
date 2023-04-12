@@ -1,5 +1,5 @@
 import { openNotification } from 'common/Notify';
-import { LOGOUT } from 'redux/actions/user';
+import { LOGOUT } from 'redux/actions/account';
 import store from 'redux/store';
 
 class BaseRequest {
@@ -59,6 +59,7 @@ class BaseRequest {
       store.dispatch({
         type: LOGOUT,
       });
+      window.navigate('/login');
     }
     throw err;
   }

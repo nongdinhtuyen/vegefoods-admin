@@ -1,7 +1,8 @@
+import accountSaga from './sagas/account_saga';
 import initSaga from './sagas/init_saga';
-import UserSaga from './sagas/user_saga';
+import receiptSaga from './sagas/receipt_saga';
 import { all } from 'redux-saga/effects';
 
 export default function* rootSaga() {
-  yield all([initSaga(), UserSaga()]);
+  yield all([initSaga(), accountSaga(), receiptSaga()]);
 }

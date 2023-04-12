@@ -1,6 +1,6 @@
 import rf from '../../requests/RequestFactory';
+import { LOGIN } from '../actions/account';
 import initActions from '../actions/init';
-import { LOGIN } from '../actions/user';
 import utils from 'common/utils';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { INIT } from 'redux/actions/init';
@@ -24,7 +24,7 @@ function* init() {
 }
 
 export function* saveMasterData(id) {
-  const resp = yield call((params) => rf.getRequest('UserRequest').getUserInfo(params), id);
+  // const resp = yield call((params) => rf.getRequest('AccountRequest').getUserInfo(params), id);
   yield put(createActionTypeOnSuccess(LOGIN)());
   // yield put(cartActions.actionGetCart({}));
   yield put(initActions.actionInitSucceed({}));
