@@ -88,7 +88,7 @@ export default function Receipt() {
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
         {Salereceipt.status === 0 && (
           <>
-            <Icon title='Phê duyệt' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt.id, 0)} icon={'accept'} />
+            <Icon title='Phê duyệt' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt.id, 1)} icon={'accept'} />
             <Icon size={22} className='cursor-pointer' icon={'edit'} />
             <Icon title='Hủy đơn hàng' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt.id, 6)} icon={'cancel'} />
           </>
