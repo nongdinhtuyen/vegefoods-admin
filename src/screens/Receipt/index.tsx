@@ -6,7 +6,7 @@ import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
-import ProductDetail from 'screens/ProductDetail';
+import ReceiptDetail from 'screens/Receipt/ReceiptDetail';
 import styled from 'styled-components';
 import { useImmer } from 'use-immer';
 
@@ -257,7 +257,7 @@ export default function Receipt() {
         cancelText='Hủy'
         className='top-10'
       >
-        <ProductDetail product={_item} />
+        <ReceiptDetail product={_item} />
       </Modal>
     </ReceiptWrapper>
   );

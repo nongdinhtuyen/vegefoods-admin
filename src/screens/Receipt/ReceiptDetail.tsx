@@ -20,17 +20,7 @@ import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
 
-export default function ProductDetail({ product }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [_receipt, setReceipt] = useImmer<{ data: any; total: number }>({
-    data: {
-      inforeceipt: [],
-      receipt: {},
-    },
-    total: 0,
-  });
-
+export default function ReceiptDetail({ product }) {
   return (
     <div className='bg-[#F2F2F2]'>
       <div className='container m-auto'>
