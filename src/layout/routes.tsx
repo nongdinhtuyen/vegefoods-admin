@@ -1,4 +1,4 @@
-import { BsQuestionCircle, CiMoneyBill, FiPackage, MdOutlineAccountBalanceWallet, MdOutlineReport } from 'react-icons/all';
+import { CiMoneyBill, FaProductHunt, FiPackage, MdOutlineAccountBalanceWallet, MdOutlineReport } from 'react-icons/all';
 
 const routes = [
   {
@@ -6,6 +6,12 @@ const routes = [
     icon: <CiMoneyBill size={24} />,
     key: '',
     path: '',
+  },
+  {
+    title: 'SẢN PHẨM',
+    icon: <FaProductHunt size={20} />,
+    key: 'product',
+    path: 'product',
   },
 ];
 

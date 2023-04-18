@@ -83,7 +83,7 @@ export default function Receipt() {
             setItem(record);
           }}
         >
-          {Salereceipt.addressList.name}
+          {Salereceipt.nameReceiver}
         </div>
       ),
     },

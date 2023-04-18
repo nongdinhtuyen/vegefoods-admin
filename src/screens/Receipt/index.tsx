@@ -25,7 +25,7 @@ export default function Receipt() {
   const [_receipt, setReceipt] = useImmer({
     total: 0,
     current: 1,
-    data: [],
+    data: [{}],
     typeStatus: '-1',
   });
   const { open, close, isOpen } = useToggle();
@@ -86,40 +86,40 @@ export default function Receipt() {
     const newAction = [];
     return (
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
-        {Salereceipt.status === 0 && (
+        {Salereceipt?.status === 0 && (
           <>
-            <Icon title='Phê duyệt' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt.id, 1)} icon={'accept'} />
+            <Icon title='Phê duyệt' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt?.id, 1)} icon={'accept'} />
             <Icon size={22} className='cursor-pointer' icon={'edit'} />
-            <Icon title='Hủy đơn hàng' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt.id, 6)} icon={'cancel'} />
+            <Icon title='Hủy đơn hàng' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt?.id, 6)} icon={'cancel'} />
           </>
         )}
-        {Salereceipt.status === 1 && (
-          <Icon title='Yêu cầu xuất kho' size={22} className='cursor-pointer' onClick={() => handleFinancial(Salereceipt.id, 2)} icon={'tag'} />
+        {Salereceipt?.status === 1 && (
+          <Icon title='Yêu cầu xuất kho' size={22} className='cursor-pointer' onClick={() => handleFinancial(Salereceipt?.id, 2)} icon={'tag'} />
         )}
-        {Salereceipt.status === 2 && (
-          <Icon title='Xác nhận xuất kho' size={30} className='cursor-pointer' onClick={() => handleWarehouse(Salereceipt.id, 3)} icon={'ship'} />
+        {Salereceipt?.status === 2 && (
+          <Icon title='Xác nhận xuất kho' size={30} className='cursor-pointer' onClick={() => handleWarehouse(Salereceipt?.id, 3)} icon={'ship'} />
         )}
-        {Salereceipt.status === 5 && (
+        {Salereceipt?.status === 5 && (
           <Icon
             title='Xác nhận hủy'
             size={30}
             className='cursor-pointer'
-            onClick={() => handleWarehouse(Salereceipt.id, 3)}
+            onClick={() => handleWarehouse(Salereceipt?.id, 3)}
             icon={'watting-cancel'}
           />
         )}
-        {Salereceipt.status === 3 && (
+        {Salereceipt?.status === 3 && (
           <>
             <img
               title='Giao hàng thành công'
               className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt.id, 4)}
+              onClick={() => handleWarehouse(Salereceipt?.id, 4)}
               src='/images/accept_file.svg'
             />
             <img
               title='Giao hàng thất bại'
               className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt.id, 6)}
+              onClick={() => handleWarehouse(Salereceipt?.id, 6)}
               src='/images/cancel_file.svg'
             />
           </>
@@ -135,7 +135,7 @@ export default function Receipt() {
       title: 'Id',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => Salereceipt.id,
+      render: (Salereceipt) => Salereceipt?.id,
     },
     {
       width: '10%',
@@ -150,7 +150,7 @@ export default function Receipt() {
             setItem(record);
           }}
         >
-          {Salereceipt.addressList.name}
+          {Salereceipt?.nameReceiver}
         </div>
       ),
     },
@@ -160,14 +160,14 @@ export default function Receipt() {
       title: 'Số điện thoại',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => Salereceipt.addressList.phone,
+      render: (Salereceipt) => Salereceipt?.phoneReceiver,
     },
     {
       width: '10%',
       title: 'Địa chỉ',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => Salereceipt.addressList.address,
+      render: (Salereceipt) => Salereceipt?.addressReceiver,
     },
     {
       width: '10%',
@@ -175,7 +175,7 @@ export default function Receipt() {
       title: 'Thời gian đặt hàng',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => utils.formatTimeFromUnix(Salereceipt.createAt, 'DD/MM/YYYY HH:mm:ss'),
+      render: (Salereceipt) => utils.formatTimeFromUnix(Salereceipt?.createAt, 'DD/MM/YYYY HH:mm:ss'),
     },
     {
       width: '10%',
@@ -183,7 +183,7 @@ export default function Receipt() {
       title: 'Hình thức thanh toán',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => (Salereceipt.typePayment === consts.TYPE_PAYMENT_OCD ? 'Thanh toán COD' : 'Thanh toán online'),
+      render: (Salereceipt) => (Salereceipt?.typePayment === consts.TYPE_PAYMENT_OCD ? 'Thanh toán COD' : 'Thanh toán online'),
     },
     {
       width: '10%',
@@ -191,7 +191,7 @@ export default function Receipt() {
       title: 'Trạng thái đơn hàng',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt: any) => consts.PRODUCT_STATUS_STRING[Salereceipt.status],
+      render: (Salereceipt: any) => consts.PRODUCT_STATUS_STRING[Salereceipt?.status],
     },
     {
       width: '20%',

@@ -31,7 +31,7 @@ function HeaderComponent() {
   };
 
   const title = () => {
-    const route = _.find(routes, (item) => _.includes(location.pathname, '/' + item.path));
+    const route = _.find(routes, (item) => location.pathname === '/' + item.path);
     return route?.title ?? '';
   };
 

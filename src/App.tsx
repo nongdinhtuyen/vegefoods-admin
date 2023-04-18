@@ -5,7 +5,7 @@ import LayoutContainer from 'layout/LayoutContainer';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from 'redux/store';
 import Login from 'screens/Login';
-import ProductDetail from 'screens/ProductDetail';
+import Product from 'screens/Product';
 import Receipt from 'screens/Receipt';
 
 import './scss/index.scss';
@@ -46,7 +46,7 @@ function App() {
           }
         >
           <Route index element={<Receipt />} />
-          {/* <Route path='/product/:id' element={<ProductDetail />} /> */}
+          <Route path='product' element={<Product />} />
         </Route>
         <Route
           path='/login'

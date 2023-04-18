@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 const { Content } = Layout;
 const ContentWrapper = styled(Content)`
-  margin-top: 64px;
+  margin-top: 50px;
   overflow: auto;
   height: calc(100vh - 64px);
   & > div:first-of-type {
