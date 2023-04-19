@@ -3,8 +3,12 @@ import BaseRequest from './BaseRequest';
 const prefix = 'product';
 export default class ProductRequest extends BaseRequest {
   getProduct(params) {
-    const url = `${prefix}?current=${params.current}&count=${params.count}`;
+    const url = `${prefix}/list?current=${params.current}&count=${params.count}`;
     return this.post(url, params.body);
+  }
+  createProduct(params) {
+    const url = `${prefix}`;
+    return this.post(url, params);
   }
 
   getProductType(params) {
@@ -15,5 +19,20 @@ export default class ProductRequest extends BaseRequest {
   updateProductType(params) {
     const url = `${prefix}/product-type/${params.id}?name=${params.name}`;
     return this.put(url);
+  }
+
+  getProductById(params) {
+    const url = `${prefix}/${params.id}`;
+    return this.get(url);
+  }
+
+  updateProductById(params) {
+    const url = `${prefix}/${params.id}`;
+    return this.put(url, params);
+  }
+
+  getProductImageById(params) {
+    const url = `${prefix}/${params.id}/image`;
+    return this.get(url);
   }
 }

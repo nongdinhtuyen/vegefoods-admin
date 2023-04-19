@@ -1,11 +1,12 @@
-import dayjs from 'dayjs';
-import _ from 'lodash';
-import BigNumber from 'bignumber.js';
 import { openNotification } from './Notify';
 import axios, { ParamsSerializerOptions } from 'axios';
-import { parse, stringify, ParsedQs, IStringifyOptions } from 'qs';
-import humanizeDuration from 'humanize-duration';
+import BigNumber from 'bignumber.js';
 import consts from 'consts';
+import dayjs from 'dayjs';
+import humanizeDuration from 'humanize-duration';
+import { IStringifyOptions, parse, ParsedQs, stringify } from 'qs';
+
+import _ from 'lodash';
 
 // let timeoutID;
 
@@ -50,9 +51,58 @@ const getDp = (num) => {
 };
 
 const baseUrlImage = (img) => {
-  return `http://127.0.0.1:8089/raw/${img}`
+  return `http://127.0.0.1:8089/raw/${img}`;
   // return `http://192.168.68.106:8089/raw/${img}`
+};
+
+function getExtension(filename) {
+  var parts = filename.split('.');
+  return parts[parts.length - 1];
 }
+
+const imageSizeRequired = (file, value) => {
+  const isLt = new BigNumber(file.size).div(1024).div(1024).isLessThan(value);
+  return isLt;
+};
+
+const isImage = (filename) => {
+  const ext = getExtension(filename);
+  if (!ext) return false;
+  switch (ext.toLowerCase()) {
+    case 'jpg':
+    case 'gif':
+    case 'bmp':
+    case 'png':
+    case 'svg':
+    case 'jpeg':
+      return true;
+  }
+  return false;
+};
+
+const dumpRequest = ({ file, onSuccess }, callback) => {
+  const formData = new FormData();
+  formData.append('myFile', file);
+  const customAxios = axios.create({
+    // baseURL: 'https://upload.mediacloud.mobilelab.vn',
+    baseURL: 'http://127.0.0.1:8089',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    paramsSerializer: {
+      encode: (param: string): ParsedQs => parse(param),
+      serialize: (params: Record<string, any>, options?: ParamsSerializerOptions | IStringifyOptions | any): string => stringify(params, options),
+      indexes: false, // array indexes format (null - no brackets, false (default) - empty brackets, true - brackets with indexes)
+    },
+  });
+
+  customAxios.post('upload', formData).then((resp) => {
+    if (_.isFunction(callback)) {
+      callback(resp.data);
+    }
+  });
+  onSuccess('ok');
+};
 
 export default {
   baseUrlImage,
@@ -63,6 +113,9 @@ export default {
   getSessionJSON,
   isNumeric,
   trimDot,
+  isImage,
+  imageSizeRequired,
+  dumpRequest,
   getDp,
   formatCurrencyWithDecimal,
   formatCurrencyWithDecimalFloor,

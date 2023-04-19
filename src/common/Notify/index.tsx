@@ -2,7 +2,6 @@ import { notification } from 'antd';
 import { ReactNode } from 'react';
 
 import './styles.scss';
-import i18n from 'langs/i18n';
 
 export type INotificationMethodType = 'success' | 'info' | 'warning' | 'error';
 

@@ -1,6 +1,7 @@
 import rf from '../../requests/RequestFactory';
 import { LOGIN } from '../actions/account';
 import initActions from '../actions/init';
+import productActions from '../actions/product';
 import utils from 'common/utils';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import { INIT } from 'redux/actions/init';
@@ -28,6 +29,7 @@ export function* saveMasterData(id) {
   yield put(createActionTypeOnSuccess(LOGIN)());
   // yield put(cartActions.actionGetCart({}));
   yield put(initActions.actionInitSucceed({}));
+  yield put(productActions.actionGetProductType({ params: { current: 0, count: 100 } }));
 }
 
 function* watchInit() {

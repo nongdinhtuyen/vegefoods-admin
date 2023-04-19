@@ -1,20 +1,23 @@
 import { EyeOutlined } from '@ant-design/icons';
 import { Image, Space } from 'antd';
+import type { ImageProps } from 'antd';
+import { CompositionImage } from 'antd/es/image';
 import React from 'react';
 
-export default function CustomImage(props) {
+const CustomImage = (props: ImageProps) => {
   return (
     <Image
-      preview={false}
-      // preview={{
-      //   mask: (
-      //     <Space>
-      //       <EyeOutlined />
-      //       Xem trước
-      //     </Space>
-      //   ),
-      // }}
+      preview={{
+        mask: (
+          <Space>
+            <EyeOutlined />
+            Xem trước
+          </Space>
+        ),
+      }}
       {...props}
     />
   );
-}
+};
+
+export default CustomImage;

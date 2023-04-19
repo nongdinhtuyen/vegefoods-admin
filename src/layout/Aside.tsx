@@ -72,7 +72,7 @@ export default function Aside() {
     setCurrentKey(e.key);
   };
   useLayoutEffect(() => {
-    const route = _.find(routes, (item) => _.includes(location.pathname, '/' + item.path));
+    const route = _.find(routes, (item) => location.pathname === '/' + item.path);
     setCurrentKey(route?.path || '');
   }, []);
   const items: ItemType[] | any = _.map(routes, (route: RouteType): any => {

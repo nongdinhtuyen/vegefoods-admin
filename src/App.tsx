@@ -6,6 +6,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { useAppSelector } from 'redux/store';
 import Login from 'screens/Login';
 import Product from 'screens/Product';
+import ProductDetail from 'screens/Product/ProductDetail';
 import Receipt from 'screens/Receipt';
 
 import './scss/index.scss';
