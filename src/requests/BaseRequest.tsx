@@ -53,7 +53,7 @@ class BaseRequest {
   _errorHandler(err) {
     if (err.response && err.response.status === 401) {
       openNotification({
-        description: 'Không có quyền',
+        description: 'Bạn không có quyền',
         type: 'error',
       });
       store.dispatch({

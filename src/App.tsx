@@ -7,6 +7,7 @@ import { useAppSelector } from 'redux/store';
 import Login from 'screens/Login';
 import Product from 'screens/Product';
 import ProductDetail from 'screens/Product/ProductDetail';
+import Provider from 'screens/Provider';
 import Receipt from 'screens/Receipt';
 
 import './scss/index.scss';
@@ -48,6 +49,7 @@ function App() {
         >
           <Route index element={<Receipt />} />
           <Route path='product' element={<Product />} />
+          <Route path='provider' element={<Provider />} />
         </Route>
         <Route
           path='/login'
