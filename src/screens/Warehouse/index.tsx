@@ -1,8 +1,10 @@
+import AddOrderEntryForm from './AddOrderEntryForm';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tabs } from 'antd';
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Table, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import utils from 'common/utils';
 import consts, { DEFAULT_PAGE_SIZE } from 'consts';
+import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
@@ -16,7 +18,12 @@ import _ from 'lodash';
 
 export default function Warehouse() {
   const dispatch = useAppDispatch();
-  const [_provider, setProvider] = useImmer({
+  const [_import, setImport] = useImmer({
+    total: 0,
+    current: 1,
+    data: [],
+  });
+  const [_export, setExport] = useImmer({
     total: 0,
     current: 1,
     data: [],
@@ -26,17 +33,18 @@ export default function Warehouse() {
   const [_isUpdate, setIsUpdate] = useState(false);
   const [_id, setId] = useState(0);
   const [_active, setActive] = useState('1');
+  const defaultDate: any = [];
 
-  const getDataImport = ({ current = _provider.current } = {}) => {
-    setProvider((draft) => {
+  const getDataImport = ({ current = _import.current, date = defaultDate } = {}) => {
+    setImport((draft) => {
       draft.current = current;
     });
     dispatch(
       actions.actionGetImportWarehouse({
-        params: { current, count: DEFAULT_PAGE_SIZE },
+        params: { current, count: DEFAULT_PAGE_SIZE, from: date[0], to: date[1] },
         callbacks: {
           onSuccess({ data, total }) {
-            setProvider((draft) => {
+            setImport((draft) => {
               draft.data = data;
               draft.total = total;
             });
@@ -46,16 +54,16 @@ export default function Warehouse() {
     );
   };
 
-  const getDataExport = ({ current = _provider.current } = {}) => {
-    setProvider((draft) => {
+  const getDataExport = ({ current = _import.current, date = defaultDate } = {}) => {
+    setExport((draft) => {
       draft.current = current;
     });
     dispatch(
       actions.actionGetExportWarehouse({
-        params: { current, count: DEFAULT_PAGE_SIZE },
+        params: { current, count: DEFAULT_PAGE_SIZE, from: date[0], to: date[1] },
         callbacks: {
           onSuccess({ data, total }) {
-            setProvider((draft) => {
+            setExport((draft) => {
               draft.data = data;
               draft.total = total;
             });
@@ -69,7 +77,7 @@ export default function Warehouse() {
     getDataImport();
   }, []);
 
-  const columns: any = [
+  const importColumns: any = [
     {
       width: '5%',
       align: 'center',
@@ -81,51 +89,57 @@ export default function Warehouse() {
       width: '15%',
       align: 'center',
       title: 'Người nhập',
-      dataIndex: 'providerList',
-      key: 'providerList',
-      render: (providerList) => providerList.name,
+      dataIndex: 'adminList',
+      key: 'adminList',
+      render: (adminList) => adminList.name,
     },
     {
       align: 'center',
       width: '10%',
       title: 'Ngày nhập',
-      dataIndex: 'phone',
-      key: 'phone',
+      dataIndex: 'importDate',
+      key: 'importDate',
+      render: (importDate) => utils.formatTimeFromUnix(importDate, 'DD/MM/YYYY HH:mm:ss'),
     },
     {
       align: 'center',
       width: '10%',
-      title: 'Ngày tạo phiếu',
-      dataIndex: 'email',
-      key: 'email',
+      title: 'Nhà cung cấp',
+      dataIndex: 'createDate',
+      key: 'createDate',
+      render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
     },
     {
       width: '10%',
       align: 'center',
       title: 'Nhà cung cấp',
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'providerList',
+      key: 'providerList',
+      render: (providerList) => providerList.name,
     },
     {
       width: '10%',
       align: 'center',
       title: 'Trạng thái thanh toán',
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => consts.PRODUCT_STATUS_STRING[status],
     },
     {
       width: '10%',
       align: 'center',
       title: 'Ngày thanh toán',
-      dataIndex: 'address',
-      key: 'address',
+      dataIndex: 'solveDate',
+      key: 'solveDate',
+      render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
     },
     {
       width: '10%',
       align: 'center',
-      title: 'Tổng tiền',
-      dataIndex: 'address',
-      key: 'address',
+      title: 'Tổng tiền (VNĐ)',
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
+      render: utils.formatCurrency,
     },
     {
       width: '10%',
@@ -137,6 +151,73 @@ export default function Warehouse() {
         <div className='flex items-center gap-x-2 justify-center'>
           <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => updateProvider(record)} />
           <Icon size={22} className='cursor-pointer' title='Cập nhật trạng thái' icon={'update-status'} onClick={() => showConfirm(id)} />
+        </div>
+      ),
+    },
+  ];
+
+  const exportColumns: any = [
+    {
+      width: '5%',
+      align: 'center',
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Ngày xuất',
+      dataIndex: 'createDate',
+      key: 'createDate',
+      render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
+    },
+    {
+      align: 'center',
+      width: '10%',
+      title: 'Người nhận',
+      dataIndex: 'nameReceiver',
+      key: 'nameReceiver',
+    },
+    {
+      align: 'center',
+      width: '10%',
+      title: 'Nhà cung cấp',
+      dataIndex: 'createDate',
+      key: 'createDate',
+      render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Số điện thoại',
+      dataIndex: 'phoneReceiver',
+      key: 'phoneReceiver',
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Địa chỉ',
+      dataIndex: 'addressReceiver',
+      key: 'addressReceiver',
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Tổng tiền (VNĐ)',
+      dataIndex: 'total',
+      key: 'total',
+      render: utils.formatCurrency,
+    },
+    {
+      width: '5%',
+      align: 'center',
+      title: 'Hành động',
+      dataIndex: 'id',
+      key: 'id',
+      render: (id, record) => (
+        <div className='flex items-center gap-x-2 justify-center'>
+          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => updateProvider(record)} />
         </div>
       ),
     },
@@ -206,14 +287,14 @@ export default function Warehouse() {
       children: (
         <Table
           bordered
-          dataSource={_provider.data}
-          columns={columns}
+          dataSource={_import.data}
+          columns={importColumns}
           pagination={{
             onChange: (page) => getDataImport({ current: page }),
             showSizeChanger: false,
-            current: _provider.current,
+            current: _import.current,
             pageSize: DEFAULT_PAGE_SIZE,
-            total: _provider.total,
+            total: _import.total,
             hideOnSinglePage: true,
           }}
         />
@@ -225,14 +306,14 @@ export default function Warehouse() {
       children: (
         <Table
           bordered
-          dataSource={_provider.data}
-          columns={columns}
+          dataSource={_export.data}
+          columns={exportColumns}
           pagination={{
             onChange: (page) => getDataExport({ current: page }),
             showSizeChanger: false,
-            current: _provider.current,
+            current: _export.current,
             pageSize: DEFAULT_PAGE_SIZE,
-            total: _provider.total,
+            total: _export.total,
             hideOnSinglePage: true,
           }}
         />
@@ -240,13 +321,22 @@ export default function Warehouse() {
     },
   ];
 
-  const onChange = (key: string) => {
-    console.log('🚀 ~ file: index.tsx:220 ~ onChange ~ key:', key);
-    setActive(key);
+  const handleDate = (values) => {
+    console.log('🚀 ~ file: index.tsx:324 ~ handleDate ~ values:', values);
+    const date = values ? [dayjs(values[0]).unix(), dayjs(values[1]).unix()] : [];
     if (_active === '1') {
-      getDataImport();
+      getDataImport({ date });
     } else {
-      getDataExport();
+      getDataExport({ date });
+    }
+  };
+
+  const onChange = ({ key = '1', date }: any = {}) => {
+    setActive(key);
+    if (key === '1') {
+      getDataImport({ current: _import.current, date });
+    } else {
+      getDataExport({ current: _export.current, date });
     }
   };
 
@@ -256,13 +346,22 @@ export default function Warehouse() {
         defaultActiveKey='1'
         items={items}
         activeKey={_active}
-        onChange={onChange}
+        onChange={(key) => onChange({ key })}
         tabBarExtraContent={
-          <Button type='primary' onClick={open}>
-            Thêm phiếu nhập
-          </Button>
+          <>
+            <DatePicker.RangePicker
+              showTime={{ format: 'HH:mm' }}
+              format='DD/MM/YYYY HH:mm:ss'
+              disabledDate={(current) => current && current > dayjs().endOf('day')}
+              onChange={handleDate}
+            />
+            <Button type='primary' className='ml-4' onClick={open}>
+              Thêm phiếu nhập
+            </Button>
+          </>
         }
       />
+      <AddOrderEntryForm isOpen={isOpen} close={close} />
     </>
   );
 }

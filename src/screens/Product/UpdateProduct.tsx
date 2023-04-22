@@ -82,6 +82,7 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
             params: {
               id: item.id,
               ...values,
+              img: _imageUrl,
               imgs: _.map(values.imgs, (item) => item.name),
             },
             callbacks: {
