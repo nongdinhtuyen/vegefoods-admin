@@ -1,6 +1,13 @@
 import rf from '../../requests/RequestFactory';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
-import { CREATE_PROVIDER, DELETE_PROVIDER, GET_PROVIDER, UPDATE_PROVIDER } from 'redux/actions/provider';
+import {
+  ADD_PRODUCT_OF_PROVIDER,
+  CREATE_PROVIDER,
+  DELETE_PROVIDER,
+  GET_PRODUCT_OF_PROVIDER,
+  GET_PROVIDER,
+  UPDATE_PROVIDER,
+} from 'redux/actions/provider';
 import { unfoldSaga } from 'redux/redux_helper';
 
 function* getProvider(action) {
@@ -59,11 +66,41 @@ function* deleteProvider(action) {
   );
 }
 
+function* addProductOfProvider(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const data = yield call((params) => rf.getRequest('ProviderRequest').addProductOfProvider(params), params);
+        return data;
+      },
+      key: ADD_PRODUCT_OF_PROVIDER,
+    },
+    callbacks
+  );
+}
+
+function* getProductOfProvider(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const data = yield call((params) => rf.getRequest('ProviderRequest').getProductOfProvider(params), params);
+        return data;
+      },
+      key: GET_PRODUCT_OF_PROVIDER,
+    },
+    callbacks
+  );
+}
+
 function* watchProvider() {
   yield takeLatest(GET_PROVIDER, getProvider);
   yield takeLatest(UPDATE_PROVIDER, updateProvider);
   yield takeLatest(CREATE_PROVIDER, createProvider);
   yield takeLatest(DELETE_PROVIDER, deleteProvider);
+  yield takeLatest(ADD_PRODUCT_OF_PROVIDER, addProductOfProvider);
+  yield takeLatest(GET_PRODUCT_OF_PROVIDER, getProductOfProvider);
 }
 
 export default function* rootSaga() {

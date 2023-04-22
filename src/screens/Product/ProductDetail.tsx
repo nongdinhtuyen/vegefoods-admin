@@ -65,7 +65,7 @@ const ProductDetail = ({ isOpen, close, open, item }: any) => {
   }, [item.id, isOpen]);
 
   return (
-    <DrawWrapper width={640} title='Chi tiết sản phẩm' placement='right' onClose={close} open={isOpen} extra={<Button>Cập nhật sản phẩm</Button>}>
+    <DrawWrapper width={640} title='Chi tiết sản phẩm' placement='right' onClose={close} open={isOpen}>
       <p className='site-description-item-profile-p' style={{ marginBottom: 24 }}>
         Thông tin
       </p>
@@ -103,7 +103,6 @@ const ProductDetail = ({ isOpen, close, open, item }: any) => {
         {_.map(_images, (item: any) => (
           <div>
             <CustomImage height={150} width={150} src={utils.baseUrlImage(item.img)} key={item.id} className='object-contain' />
-            <div className='text-center mt-1'>Ảnh {item.id}</div>
           </div>
         ))}
       </div>

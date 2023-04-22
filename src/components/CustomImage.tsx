@@ -4,6 +4,8 @@ import type { ImageProps } from 'antd';
 import { CompositionImage } from 'antd/es/image';
 import React from 'react';
 
+import classNames from 'classnames';
+
 const CustomImage = (props: ImageProps) => {
   return (
     <Image
@@ -16,6 +18,7 @@ const CustomImage = (props: ImageProps) => {
         ),
       }}
       {...props}
+      className={classNames(props.className, 'object-contain')}
     />
   );
 };

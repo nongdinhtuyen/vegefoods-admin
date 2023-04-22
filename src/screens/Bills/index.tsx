@@ -6,7 +6,7 @@ import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
-import ReceiptDetail from 'screens/Receipt/ReceiptDetail';
+import ReceiptDetail from 'screens/Bills/BillDetail';
 import styled from 'styled-components';
 import { useImmer } from 'use-immer';
 
@@ -20,7 +20,7 @@ const ReceiptWrapper = styled.div`
   }
 `;
 
-export default function Receipt() {
+export default function Bills() {
   const dispatch = useAppDispatch();
   const [_receipt, setReceipt] = useImmer({
     total: 0,
@@ -105,7 +105,7 @@ export default function Receipt() {
             size={30}
             className='cursor-pointer'
             onClick={() => handleWarehouse(Salereceipt?.id, 3)}
-            icon={'watting-cancel'}
+            icon={'waiting-cancel'}
           />
         )}
         {Salereceipt?.status === 3 && (
@@ -175,7 +175,7 @@ export default function Receipt() {
       title: 'Thời gian đặt hàng',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => utils.formatTimeFromUnix(Salereceipt?.createAt, 'DD/MM/YYYY HH:mm:ss'),
+      render: (Salereceipt) => utils.formatTimeFromUnix(Salereceipt?.createDate, 'DD/MM/YYYY HH:mm:ss'),
     },
     {
       width: '10%',

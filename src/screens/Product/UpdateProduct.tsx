@@ -131,7 +131,7 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
           <Input />
         </Form.Item>
 
-        <Form.Item label='Miêu tả' name='description' rules={[{ required: true }]}>
+        <Form.Item label='Miêu tả' name='description'>
           <Input.TextArea />
         </Form.Item>
         <Form.Item getValueFromEvent={normFile} label='Upload ảnh chính' name='img' valuePropName='file' rules={[{ required: true }]}>
@@ -158,7 +158,7 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
             )}
           </Upload>
         </Form.Item>
-        <Form.Item getValueFromEvent={normFile} label='Upload ảnh mô tả' name='imgs' valuePropName='fileList' rules={[{ required: true }]}>
+        <Form.Item getValueFromEvent={normFile} label='Upload ảnh mô tả' name='imgs' valuePropName='fileList'>
           <Upload
             customRequest={selectImage}
             beforeUpload={beforeUpload}

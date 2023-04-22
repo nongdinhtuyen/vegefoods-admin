@@ -1,5 +1,5 @@
 import Icon from 'icon-icomoon';
-import { CiMoneyBill, FaProductHunt, FiPackage, MdOutlineAccountBalanceWallet, MdOutlineReport } from 'react-icons/all';
+import { CiMoneyBill, FaHackerrank, FaProductHunt, MdOutlineInventory, MdOutlineReport } from 'react-icons/all';
 
 const routes = [
   {
@@ -19,6 +19,18 @@ const routes = [
     icon: <Icon icon='provider' size={22} />,
     key: 'provider',
     path: 'provider',
+  },
+  {
+    title: 'QUẢN LÝ KHO',
+    icon: <MdOutlineInventory size={22} />,
+    key: 'warehouse',
+    path: 'warehouse',
+  },
+  {
+    title: 'PHÂN HẠNG KHÁCH HÀNG',
+    icon: <FaHackerrank size={22} />,
+    key: 'rank',
+    path: 'rank',
   },
 ];
 

@@ -4,14 +4,17 @@ import AppProvider from 'components/AppProvider';
 import LayoutContainer from 'layout/LayoutContainer';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from 'redux/store';
+import Bills from 'screens/Bills';
+import Inventory from 'screens/Inventory';
 import Login from 'screens/Login';
 import Product from 'screens/Product';
-import ProductDetail from 'screens/Product/ProductDetail';
 import Provider from 'screens/Provider';
-import Receipt from 'screens/Receipt';
+import Rank from 'screens/Rank';
+import Warehouse from 'screens/Warehouse';
 
 import './scss/index.scss';
 import 'App.scss';
+import 'react-phone-number-input/style.css';
 
 type Router = {
   children: React.ReactNode;
@@ -47,9 +50,11 @@ function App() {
             </RequireAuth>
           }
         >
-          <Route index element={<Receipt />} />
+          <Route index element={<Bills />} />
           <Route path='product' element={<Product />} />
           <Route path='provider' element={<Provider />} />
+          <Route path='rank' element={<Rank />} />
+          <Route path='warehouse' element={<Warehouse />} />
         </Route>
         <Route
           path='/login'

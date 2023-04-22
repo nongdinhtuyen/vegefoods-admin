@@ -1,13 +1,17 @@
 import AccountRequest from './AccountRequest';
 import ProductRequest from './ProductRequest';
 import ProviderRequest from './ProviderRequest';
+import RankRequest from './RankRequest';
 import ReceiptRequest from './ReceiptRequest';
+import WarehouseRequest from './WarehouseRequest';
 
 const requestMap = {
   AccountRequest,
   ReceiptRequest,
   ProductRequest,
   ProviderRequest,
+  RankRequest,
+  WarehouseRequest,
 };
 
 const instances = {};

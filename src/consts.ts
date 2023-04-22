@@ -40,6 +40,7 @@ export const WAIT_TIME_DEBOUNCE = 300;
 
 export const DEFAULT_PAGE_COUNT = 50;
 export const DEFAULT_PAGE_SIZE = 10;
+export const DEFAULT_LARGE_PAGE_SIZE = 20;
 export const DEFAULT_SMALL_PAGE_SIZE = 5;
 /**
  * Map user's id to color

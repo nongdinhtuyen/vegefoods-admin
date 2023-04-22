@@ -14,6 +14,11 @@
   }
 }
 
+.editable-row .ant-form-item-explain {
+  position: absolute;
+  top: 100%;
+  font-size: 12px;
+}
 
 .header {
   font-size: 1.75rem;
@@ -24,7 +29,7 @@
   padding-inline: 1rem !important;
   display: flex;
   height: 50px;
-  background: #82AE46;
+  background: #82ae46;
   align-items: center;
   justify-content: space-between;
   .text {

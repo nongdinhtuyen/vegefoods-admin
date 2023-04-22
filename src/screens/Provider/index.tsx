@@ -1,16 +1,19 @@
+import ProductsOffered from './ProductsOffered';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Modal, Select, Space, Table } from 'antd';
 import utils from 'common/utils';
 import consts, { DEFAULT_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import { MdDeleteForever } from 'react-icons/all';
+import PhoneInput, { formatPhoneNumber, isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input/input';
 import actions from 'redux/actions/provider';
 import { useAppDispatch } from 'redux/store';
 import styled from 'styled-components';
 import { useImmer } from 'use-immer';
 
+import classNames from 'classnames';
 import _ from 'lodash';
 
 const layout = {
@@ -26,9 +29,11 @@ export default function Provider() {
     data: [],
   });
   const { open, close, isOpen } = useToggle();
+  const { open: openOffer, close: closeOffer, isOpen: isOpenOffer } = useToggle();
   const [_form] = Form.useForm();
   const [_isUpdate, setIsUpdate] = useState(false);
   const [_id, setId] = useState(0);
+  const [_phoneNumber, setPhoneNumber] = useState<any>('+84');
 
   const getData = ({ current = _provider.current } = {}) => {
     setProvider((draft) => {
@@ -83,7 +88,7 @@ export default function Provider() {
       key: 'email',
     },
     {
-      width: '10%',
+      width: '15%',
       align: 'center',
       title: 'Địa chỉ',
       dataIndex: 'address',
@@ -96,9 +101,10 @@ export default function Provider() {
       dataIndex: 'id',
       key: 'id',
       render: (id, record) => (
-        <div className='flex items-center gap-x-2 justify-center'>
-          <Icon size={22} className='cursor-pointer' icon={'edit'} onClick={() => updateProvider(record)} />
-          <Icon size={22} className='cursor-pointer' icon={'delete'} onClick={() => showConfirm(id)} />
+        <div className='flex items-center gap-x-4 justify-center'>
+          <img title='Sản phẩm cung cấp' className='cursor-pointer' onClick={() => productOffer(record)} src='/images/product.svg' />
+          <Icon title='Sửa nhà cung cấp' size={22} className='cursor-pointer' icon={'edit'} onClick={() => updateProvider(record)} />
+          <Icon title='Xóa nhà cung cấp' size={22} className='cursor-pointer' icon={'delete'} onClick={() => showConfirm(id)} />
         </div>
       ),
     },
@@ -127,6 +133,11 @@ export default function Provider() {
         console.log('Cancel');
       },
     });
+  };
+
+  const productOffer = (record) => {
+    openOffer();
+    setId(record.id);
   };
 
   const updateProvider = (record) => {
@@ -169,7 +180,8 @@ export default function Provider() {
           Thêm nhà cung cấp
         </Button>
       </div>
-      <Modal width={560} title='Thêm nhà cung cấp' open={isOpen} onOk={handleOk} onCancel={handleCancel}>
+      <ProductsOffered open={openOffer} close={closeOffer} isOpen={isOpenOffer} id={_id} />
+      <Modal width={560} title={_isUpdate ? 'Sửa nhà cung cấp' : 'Thêm nhà cung cấp'} open={isOpen} onOk={handleOk} onCancel={handleCancel}>
         <Form labelWrap className='mt-4' {...layout} labelAlign='left' form={_form} name='control-hooks'>
           <Form.Item label='Tên nhà cung cấp' name='name' rules={[{ required: true }]}>
             <Input />
@@ -179,11 +191,63 @@ export default function Provider() {
             <Input.TextArea />
           </Form.Item>
 
-          <Form.Item label='Số điện thoại' name='phone' rules={[{ required: true }]}>
-            <InputNumber min={0} controls={false} className='w-full' />
+          <Form.Item
+            label='Số điện thoại'
+            name='phone'
+            required
+            // rules={[
+            //   ({ getFieldValue }) => ({
+            //     validator(rule, value, callback) {
+            //       if (isPossiblePhoneNumber(_phoneNumber, 'VN')) {
+            //         return Promise.resolve();
+            //       }
+            //       return Promise.reject('Số điện thoại không hợp lệ');
+            //     },
+            //   }),
+            // ]}
+          >
+            <InputNumber
+              // className={classNames(
+              //   'ant-input',
+              //   !isPossiblePhoneNumber(_phoneNumber, 'VN') && _phoneNumber !== '' ? 'ant-input-status-error' : 'ant-input-status-success'
+              // )}
+              // defaultCountry='VN'
+              // international
+              // value={_phoneNumber}
+              // onChange={(value) => setPhoneNumber(formatPhoneNumber(value ?? ''))}
+              // formatter={(value: any) => `${formatPhoneNumber(value)}`}
+              // parser={(value) => console.log(value) || value!.replace(' ', '')}
+              formatter={(value) => `${formatPhoneNumber(`+84${value}`)}`}
+              parser={(value) => value!.replace(' ', '')}
+              className='w-full'
+              controls={false}
+            />
+            {/* <PhoneInput
+              className={classNames(
+                'ant-input',
+                !isPossiblePhoneNumber(_phoneNumber, 'VN') && _phoneNumber !== '' ? 'ant-input-status-error' : 'ant-input-status-success'
+              )}
+              // defaultCountry='VN'
+              international
+              value={_phoneNumber}
+              onChange={(value) => setPhoneNumber(formatPhoneNumber(value ?? ''))}
+            /> */}
           </Form.Item>
-
-          <Form.Item label='Email' name='email' rules={[{ required: true }]}>
+          <Form.Item
+            label='Email'
+            name='email'
+            required
+            rules={[
+              {
+                validator(rule, value, callback) {
+                  if (value && utils.validateEmail(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject('Email không hợp lệ');
+                },
+              },
+            ]}
+          >
             <Input />
           </Form.Item>
         </Form>

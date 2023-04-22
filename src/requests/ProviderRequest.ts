@@ -18,4 +18,12 @@ export default class ProviderRequest extends BaseRequest {
     const url = `${prefix}/${params.id}`;
     return this.delete(url);
   }
+  addProductOfProvider(params) {
+    const url = `${prefix}/product/${params.id}`;
+    return this.post(url, params);
+  }
+  getProductOfProvider(params) {
+    const url = `${prefix}/product/${params.id}`;
+    return this.get(url, params);
+  }
 }
