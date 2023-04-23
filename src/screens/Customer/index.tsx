@@ -44,7 +44,7 @@ export default function Customer() {
     current: 1,
     total: 0,
   });
-  const [_address, setAddres] = useState<any>({});
+  const [_address, setAddres] = useState<any>([]);
 
   const getData = ({ current = _customer.current } = {}) => {
     dispatch(
@@ -184,14 +184,14 @@ export default function Customer() {
 
   const columnsAddress: any = [
     {
-      width: '10%',
+      width: '30%',
       align: 'center',
       title: 'Tên',
       dataIndex: 'name',
       key: 'name',
     },
     {
-      width: '10%',
+      width: '20%',
       align: 'center',
       title: 'Số điện thoại',
       dataIndex: 'phone',
@@ -215,6 +215,7 @@ export default function Customer() {
         },
         callbacks: {
           onSuccess({ data }) {
+            console.log('🚀 ~ file: index.tsx:218 ~ onSuccess ~ data:', data);
             setAddres(data);
           },
         },
@@ -243,7 +244,7 @@ export default function Customer() {
         </div>
       </div>
       <Table bordered rowKey={'id'} dataSource={_customer.data} columns={columns} pagination={{ hideOnSinglePage: true }} />
-      <Modal width={800} footer={null} title='Địa chỉ người dùng' onCancel={close} open={isOpen}>
+      <Modal width={800} footer={null} title='Danh sách địa chỉ người dùng' onCancel={close} open={isOpen}>
         <Table bordered rowKey={'id'} dataSource={_address} columns={columnsAddress} pagination={{ hideOnSinglePage: true }} />
       </Modal>
     </>
