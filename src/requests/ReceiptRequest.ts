@@ -21,4 +21,9 @@ export default class ReceiptRequest extends BaseRequest {
     const url = `${prefix}/warehouse`;
     return this.post(url, params);
   }
+
+  updateReceipt(params) {
+    const url = `${prefix}/order/${params.id}`;
+    return this.post(url, params.body);
+  }
 }

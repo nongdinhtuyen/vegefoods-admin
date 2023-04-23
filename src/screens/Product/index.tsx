@@ -1,6 +1,6 @@
 import ProductDetail from './ProductDetail';
 import UpdateProduct from './UpdateProduct';
-import { Input, Modal, Select, Space, Table } from 'antd';
+import { Button, Input, Modal, Select, Space, Table } from 'antd';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
 import consts, { DEFAULT_SMALL_PAGE_SIZE } from 'consts';
@@ -28,6 +28,7 @@ export default function Category() {
   const { isOpen: isOpenDetail, close: closeDetail, open: openDetail } = useToggle();
   const { isOpen: isOpenUpdate, close: closeUpdate, open: openUpdate } = useToggle();
   const [_item, setItem] = useState({});
+  const [_isCreate, setIsCreate] = useState(false);
 
   const getData = ({ current = _product.current, name = _search, type_product = _productType !== -1 ? [_productType] : [] } = {}) => {
     setProduct((draft) => {
@@ -56,30 +57,8 @@ export default function Category() {
     );
   };
 
-  // const getProductType = ({ current = _product.current } = {}) => {
-  //   setProduct((draft) => {
-  //     draft.current = current;
-  //   });
-  //   dispatch(
-  //     actions.actionGetProductType({
-  //       params: {
-  //         current,
-  //         count: 100,
-  //       },
-  //       callbacks: {
-  //         onSuccess({ data, total }) {
-  //           setProductType((draft) => {
-  //             draft.data = data;
-  //           });
-  //         },
-  //       },
-  //     })
-  //   );
-  // };
-
   useEffect(() => {
     getData();
-    // getProductType();
   }, []);
 
   const columns: any = [
@@ -134,7 +113,7 @@ export default function Category() {
       title: 'Đánh giá trung bình',
       dataIndex: 'rateAVG',
       key: 'rateAVG',
-      render: (rateAVG) => rateAVG.toFixed(1),
+      render: (rateAVG) => utils.formatCurrency(rateAVG, 1),
     },
     {
       width: '10%',
@@ -166,6 +145,7 @@ export default function Category() {
             className='cursor-pointer'
             onClick={() => {
               openUpdate();
+              setIsCreate(false);
               setItem(record);
             }}
             icon={'edit'}
@@ -181,29 +161,37 @@ export default function Category() {
     });
   };
 
+  const handleCreate = () => {
+    setIsCreate(true);
+    openUpdate();
+  };
+
   return (
-    <div>
-      <Space className='mb-3'>
-        <Select
-          options={[
-            { label: 'Tất cả', value: -1 },
-            ..._.map(productType, (item: any) => ({
-              value: item.id,
-              label: item.name,
-            })),
-          ]}
-          value={_productType}
-          className='w-52'
-          onSelect={(value: any) => {
-            setProductType(value);
-            getData({
-              current: 1,
-              type_product: [value],
-            });
-          }}
-        />
-        <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' />
-      </Space>
+    <>
+      <div className='flex items-center justify-between'>
+        <Space className='mb-3'>
+          <Select
+            options={[
+              { label: 'Tất cả', value: -1 },
+              ..._.map(productType, (item: any) => ({
+                value: item.id,
+                label: item.name,
+              })),
+            ]}
+            value={_productType}
+            className='w-52'
+            onSelect={(value: any) => {
+              setProductType(value);
+              getData({
+                current: 1,
+                type_product: [value],
+              });
+            }}
+          />
+          <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' />
+        </Space>
+        <Button onClick={handleCreate}>Thêm sản phẩm</Button>
+      </div>
       <Table
         bordered
         rowKey={'id'}
@@ -219,7 +207,7 @@ export default function Category() {
         }}
       />
       <ProductDetail item={_item} isOpen={isOpenDetail} close={closeDetail} open={openDetail} />
-      <UpdateProduct getData={getData} item={_item} isOpen={isOpenUpdate} close={closeUpdate} open={openUpdate} />
-    </div>
+      <UpdateProduct getData={getData} isCreate={_isCreate} item={_item} isOpen={isOpenUpdate} close={closeUpdate} />
+    </>
   );
 }

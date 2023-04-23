@@ -1,6 +1,6 @@
 import rf from '../../requests/RequestFactory';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
-import { GET_RECEIPT, RECEIPT_FINANCIAL, RECEIPT_ORDER, RECEIPT_WAREHOUSE } from 'redux/actions/receipt';
+import { GET_RECEIPT, RECEIPT_FINANCIAL, RECEIPT_ORDER, RECEIPT_WAREHOUSE, UPDATE_RECEIPT } from 'redux/actions/receipt';
 import { unfoldSaga } from 'redux/redux_helper';
 
 function* getReceipt(action) {
@@ -59,11 +59,26 @@ function* receiptWarehouse(action) {
   );
 }
 
+function* updateReceipt(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const data = yield call((params) => rf.getRequest('ReceiptRequest').updateReceipt(params), params);
+        return data;
+      },
+      key: UPDATE_RECEIPT,
+    },
+    callbacks
+  );
+}
+
 function* watchReceipt() {
   yield takeLatest(GET_RECEIPT, getReceipt);
   yield takeLatest(RECEIPT_FINANCIAL, receiptFinancial);
   yield takeLatest(RECEIPT_ORDER, receiptOrder);
   yield takeLatest(RECEIPT_WAREHOUSE, receiptWarehouse);
+  yield takeLatest(UPDATE_RECEIPT, updateReceipt);
 }
 
 export default function* rootSaga() {

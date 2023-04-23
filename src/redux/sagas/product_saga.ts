@@ -2,6 +2,7 @@ import rf from '../../requests/RequestFactory';
 import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import {
   CREATE_PRODUCT,
+  CREATE_PRODUCT_TYPE,
   GET_PRODUCT,
   GET_PRODUCT_BY_ID,
   GET_PRODUCT_IMAGE_BY_ID,
@@ -109,6 +110,20 @@ function* getProductImageById(action) {
   );
 }
 
+function* createProductType(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const data = yield call((params) => rf.getRequest('ProductRequest').createProductType(params), params);
+        return data;
+      },
+      key: CREATE_PRODUCT_TYPE,
+    },
+    callbacks
+  );
+}
+
 function* watchProduct() {
   yield takeLatest(GET_PRODUCT, getProduct);
   yield takeLatest(CREATE_PRODUCT, createProduct);
@@ -117,6 +132,7 @@ function* watchProduct() {
   yield takeLatest(UPDATE_PRODUCT_BY_ID, updateProductById);
   yield takeLatest(GET_PRODUCT_BY_ID, getProductById);
   yield takeLatest(GET_PRODUCT_IMAGE_BY_ID, getProductImageById);
+  yield takeLatest(CREATE_PRODUCT_TYPE, createProductType);
 }
 
 export default function* rootSaga() {

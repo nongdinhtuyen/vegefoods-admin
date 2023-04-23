@@ -1,6 +1,6 @@
 import ProductDetail from './ProductDetail';
 import UpdateProduct from './UpdateProduct';
-import { Form, Input, Modal, Select, Space, Table } from 'antd';
+import { Button, Form, Input, Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
@@ -15,8 +15,8 @@ import { useAppDispatch, useAppSelector } from 'redux/store';
 import _ from 'lodash';
 
 const layout = {
-  labelCol: { span: 10 },
-  wrapperCol: { span: 14 },
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
 };
 
 export default function ProductType() {
@@ -25,6 +25,7 @@ export default function ProductType() {
   const { isOpen, close, open } = useToggle();
   const [_item, setItem] = useState<any>({});
   const [_form] = Form.useForm();
+  const [_isCreate, setIsCreate] = useState<boolean>(false);
 
   const getData = () => {
     dispatch(actions.actionGetProductType({}));
@@ -58,6 +59,7 @@ export default function ProductType() {
           className='cursor-pointer'
           onClick={() => {
             open();
+            setIsCreate(false);
             setItem(record);
             _form.setFieldValue('name', record.name);
           }}
@@ -73,18 +75,20 @@ export default function ProductType() {
   };
 
   const handleOk = () => {
+    const action = _isCreate ? 'actionCreateProductType' : 'actionUpdateProductType';
     _form
       .validateFields()
       .then((values) => {
         dispatch(
-          actions.actionUpdateProductType({
+          actions[action]({
             params: { ...values, id: _item.id },
             callbacks: {
               onSuccess() {
                 getData();
                 handleCancel();
                 openNotification({
-                  description: 'Cập nhật danh mục thành công',
+                  description: _isCreate ? 'Thêm danh mục thành công' : 'Cập nhật danh mục thành công',
+                  type: 'success',
                 });
               },
             },
@@ -94,8 +98,16 @@ export default function ProductType() {
       .catch(console.log);
   };
 
+  const handleAdd = () => {
+    open();
+    setIsCreate(true);
+  };
+
   return (
-    <div>
+    <>
+      <div className='text-right mb-2'>
+        <Button onClick={handleAdd}>Thêm danh mục</Button>
+      </div>
       <Table
         bordered
         rowKey={'id'}
@@ -105,8 +117,8 @@ export default function ProductType() {
           hideOnSinglePage: true,
         }}
       />
-      <Modal width={400} onOk={handleOk} title='Sửa phân hạng' onCancel={close} open={isOpen}>
-        <Form {...layout} labelWrap className='mt-4' labelAlign='left' form={_form}>
+      <Modal width={500} onOk={handleOk} title={_isCreate ? 'Thêm danh mục' : 'Sửa danh mục'} onCancel={handleCancel} open={isOpen}>
+        <Form {...layout} labelWrap className='py-2' labelAlign='left' form={_form}>
           <Form.Item
             label='Tên danh mục'
             name='name'
@@ -120,6 +132,6 @@ export default function ProductType() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </>
   );
 }

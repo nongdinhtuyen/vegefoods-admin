@@ -6,7 +6,7 @@ import ProductComponent from 'components/ProductComponent';
 
 import _ from 'lodash';
 
-export default function ReceiptDetail({ product }) {
+export default function BillDetail({ product }) {
   return (
     <div className='bg-[#F2F2F2]'>
       <div className='container m-auto'>

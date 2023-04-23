@@ -72,7 +72,6 @@ export const EditableCell: React.FC<EditableCellProps> = ({ title, editable, chi
         rules={[
           {
             required: true,
-            message: `${title} is required.`,
           },
         ]}
       >

@@ -1,3 +1,4 @@
+import UpdateBill from './UpdateBill';
 import { Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
@@ -7,7 +8,7 @@ import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
-import ReceiptDetail from 'screens/Bills/BillDetail';
+import BillDetail from 'screens/Bills/BillDetail';
 import styled from 'styled-components';
 import { useImmer } from 'use-immer';
 
@@ -38,7 +39,10 @@ export default function Bills() {
     typeStatus: '-1',
   });
   const { open, close, isOpen } = useToggle();
+  const { open: openReceipt, close: closeReceipt, isOpen: isOpenReceipt } = useToggle();
   const [_item, setItem] = useState<any>({});
+  const [_id, setId] = useState(0);
+  const [_updateItem, setUpdateItem] = useState({});
 
   const getData = ({ current = _receipt.current, typeStatus = _receipt.typeStatus } = {}) => {
     setReceipt((draft) => {
@@ -101,20 +105,30 @@ export default function Bills() {
     return classNames(name, Salereceipt.typePayment === consts.TYPE_PAYMENT_COD ? 'cursor-pointer' : 'disable');
   };
 
-  const renderActions = (Salereceipt: any) => {
+  const renderActions = (Salereceipt: any, Infosalereceipt: any) => {
     return (
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
         {Salereceipt?.status === 0 && (
           <>
             <Icon
-              title='Phê duyệt'
+              title='Phê duyệt đơn hàng'
               size={22}
               className={handleClassName(Salereceipt)}
               onClick={() => handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công')}
               icon={'accept'}
             />
 
-            <Icon size={22} className={handleClassName(Salereceipt)} icon={'edit'} />
+            <Icon
+              size={22}
+              title='Sửa đơn hàng'
+              onClick={() => {
+                openReceipt();
+                setId(Salereceipt.id);
+                setUpdateItem(Infosalereceipt);
+              }}
+              className={handleClassName(Salereceipt)}
+              icon={'edit'}
+            />
             <Icon
               title='Hủy đơn hàng'
               size={22}
@@ -256,7 +270,7 @@ export default function Bills() {
       title: 'Hành động',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => renderActions(Salereceipt),
+      render: (Salereceipt, record) => renderActions(Salereceipt, record.Infosalereceipt),
     },
   ];
 
@@ -302,20 +316,9 @@ export default function Bills() {
         cancelText='Hủy'
         className='top-10'
       >
-        <ReceiptDetail product={_item} />
+        <BillDetail product={_item} />
       </Modal>
-      <Modal
-        title={<div className='text-2xl text-center'>Sửa hóa đơn</div>}
-        footer={null}
-        onCancel={close}
-        open={isOpen}
-        width={748}
-        okText='Xác nhận'
-        cancelText='Hủy'
-        className='top-10'
-      >
-        <ReceiptDetail product={_item} />
-      </Modal>
+      <UpdateBill close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
     </ReceiptWrapper>
   );
 }

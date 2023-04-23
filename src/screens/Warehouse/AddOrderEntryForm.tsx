@@ -228,7 +228,7 @@ const AddOrderEntryForm = ({ isOpen, close, getDataWarehouse }) => {
           {({ getFieldValue }) =>
             getFieldValue('name') && (
               <Form.Item label='Ngày nhập' name='date' rules={[{ required: true }]}>
-                <DatePicker format={'DD/MM/YYYY HH:mm:ss'} />
+                <DatePicker format={'DD/MM/YYYY HH:mm:ss'} showTime={{ format: 'hh:mm' }} />
               </Form.Item>
             )
           }

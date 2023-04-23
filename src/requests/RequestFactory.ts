@@ -1,4 +1,5 @@
 import AccountRequest from './AccountRequest';
+import CustomerRequest from './CustomerRequest';
 import ProductRequest from './ProductRequest';
 import ProviderRequest from './ProviderRequest';
 import RankRequest from './RankRequest';
@@ -12,6 +13,7 @@ const requestMap = {
   ProviderRequest,
   RankRequest,
   WarehouseRequest,
+  CustomerRequest,
 };
 
 const instances = {};

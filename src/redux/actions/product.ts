@@ -6,6 +6,7 @@ export const UPDATE_PRODUCT_TYPE = 'UPDATE_PRODUCT_TYPE';
 
 export const GET_PRODUCT_BY_ID = 'GET_PRODUCT_BY_ID';
 export const CREATE_PRODUCT = 'CREATE_PRODUCT';
+export const CREATE_PRODUCT_TYPE = 'CREATE_PRODUCT_TYPE';
 export const GET_PRODUCT_IMAGE_BY_ID = 'GET_PRODUCT_IMAGE_BY_ID';
 export const UPDATE_PRODUCT_BY_ID = 'UPDATE_PRODUCT_BY_ID';
 
@@ -17,4 +18,5 @@ export default {
   actionGetProductById: createAction<ActionPayloadStandard>(GET_PRODUCT_BY_ID),
   actionGetProductImageById: createAction<ActionPayloadStandard>(GET_PRODUCT_IMAGE_BY_ID),
   actionCreateProduct: createAction<ActionPayloadStandard>(CREATE_PRODUCT),
+  actionCreateProductType: createAction<ActionPayloadStandard>(CREATE_PRODUCT_TYPE),
 };

@@ -111,7 +111,6 @@ export default function Rank() {
   const handleValidate = (value: number) => {
     const previous = _rank[_detail.id - 2];
     const next = _rank[_detail.id];
-    console.log('🚀 ~ file: index.tsx:113 ~ handleValidate ~ next:', next);
     if (previous?.totalSpend > value) {
       return Promise.reject(`Tổng chi tiêu không được nhỏ hơn ${utils.formatCurrency(previous.totalSpend)}`);
     }

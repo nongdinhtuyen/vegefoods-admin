@@ -8,6 +8,12 @@ export default class ProductRequest extends BaseRequest {
   }
   createProduct(params) {
     const url = `${prefix}`;
+    delete params.id;
+    return this.post(url, params);
+  }
+  createProductType(params) {
+    const url = `${prefix}/product-type`;
+    delete params.id;
     return this.post(url, params);
   }
 

@@ -15,19 +15,31 @@ const layout = {
 };
 
 const normFile = (e: any) => {
+  console.log('🚀 ~ file: UpdateProduct.tsx:18 ~ normFile ~ e:', e);
+  if (!utils.isImage(e.file.name)) {
+    return [];
+  }
   if (Array.isArray(e)) {
     return e;
   }
   return e?.fileList;
 };
 
-const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
-  const [_images, setImages] = useState({});
+type Props = {
+  isOpen: boolean;
+  isCreate: boolean;
+  close: () => void;
+  getData: () => void;
+  item?: any;
+};
+
+const UpdateProduct = ({ isOpen, close, getData, item, isCreate }: Props) => {
   const [_form] = Form.useForm();
   const dispatch = useAppDispatch();
   const [_imageUrl, setImageUrl] = useState<string>();
   const [_loading, setLoading] = useState(false);
   const { productType } = useAppSelector((state) => state.productReducer);
+  const [_listImages, setListImages] = useState<{ uid: string; img: string }[]>([]);
 
   useEffect(() => {
     if (item.id && isOpen) {
@@ -42,7 +54,12 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
           },
           callbacks: {
             onSuccess({ data }) {
-              setImages(data);
+              setListImages(
+                _.map(data, (item) => ({
+                  uid: item.id,
+                  img: item.img,
+                }))
+              );
               _form.setFieldsValue({
                 imgs: _.map(data, (item) => ({
                   uid: item.id,
@@ -73,17 +90,30 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
     });
   };
 
+  const selectImageList = (options: any) => {
+    utils.dumpRequest(options, (img) => {
+      setLoading(false);
+      setListImages((data) => [...data, { uid: options.file.uid, img: _.replace(img, 'img/', '') }]);
+    });
+  };
+
+  const handleRemoveImage = (file) => {
+    const newData = _.filter(_listImages, (item: any) => item.uid !== file.uid);
+    setListImages(newData);
+  };
+
   const handleOk = () => {
+    const action = isCreate ? 'actionCreateProduct' : 'actionUpdateProductById';
     _form
       .validateFields()
       .then((values) => {
         dispatch(
-          actions.actionUpdateProductById({
+          actions[action]({
             params: {
               id: item.id,
               ...values,
               img: _imageUrl,
-              imgs: _.map(values.imgs, (item) => item.name),
+              imgs: _.map(_listImages, (item) => item.img),
             },
             callbacks: {
               onSuccess({ data }) {
@@ -101,8 +131,21 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
       .catch(console.log);
   };
 
+  const handleClose = () => {
+    close();
+    setListImages([]);
+    _form.resetFields();
+  };
+
   return (
-    <Modal className='top-10' width={640} onOk={handleOk} title='Chỉnh sửa sản phẩm' onCancel={close} open={isOpen}>
+    <Modal
+      className='top-7'
+      width={640}
+      onOk={handleOk}
+      title={isCreate ? 'Thêm sản phẩm' : 'Chỉnh sửa sản phẩm'}
+      onCancel={handleClose}
+      open={isOpen}
+    >
       <Form className='mt-4' {...layout} labelAlign='left' form={_form} name='control-hooks' style={{ maxWidth: 600 }}>
         <Form.Item label='Tên sản phẩm' name='name' rules={[{ required: true }]}>
           <Input />
@@ -122,6 +165,16 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
             controls={false}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             addonAfter='VNĐ'
+            parser={(value: any) => value!.replace(/\$\s?|(,*)/g, '')}
+            min={0}
+            className='w-full'
+          />
+        </Form.Item>
+
+        <Form.Item label='Số lượng còn lại' name='remain' rules={[{ required: true }]}>
+          <InputNumber
+            controls={false}
+            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
             parser={(value: any) => value!.replace(/\$\s?|(,*)/g, '')}
             min={0}
             className='w-full'
@@ -161,12 +214,13 @@ const UpdateProduct = ({ isOpen, close, getData, item }: any) => {
         </Form.Item>
         <Form.Item getValueFromEvent={normFile} label='Upload ảnh mô tả' name='imgs' valuePropName='fileList'>
           <Upload
-            customRequest={selectImage}
+            customRequest={selectImageList}
             beforeUpload={beforeUpload}
             name='logo'
             headers={{
               'Content-Type': 'multipart/form-data',
             }}
+            onRemove={handleRemoveImage}
             listType='picture'
           >
             <Button icon={<UploadOutlined />}>Upload</Button>
