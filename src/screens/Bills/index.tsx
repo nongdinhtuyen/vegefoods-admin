@@ -1,4 +1,5 @@
 import { Modal, Select, Space, Table } from 'antd';
+import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import consts, { DEFAULT_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
@@ -62,7 +63,7 @@ export default function Bills() {
     getData();
   }, []);
 
-  const handleAction = (action, id, status) => {
+  const handleAction = (action, id, status, text) => {
     dispatch(
       action({
         params: {
@@ -71,6 +72,10 @@ export default function Bills() {
         },
         callbacks: {
           onSuccess(data) {
+            openNotification({
+              description: text,
+              type: 'success',
+            });
             getData();
           },
         },
@@ -78,18 +83,18 @@ export default function Bills() {
     );
   };
 
-  const handleOrder = (Salereceipt, status) => {
+  const handleOrder = (Salereceipt, status, text) => {
     if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
-      handleAction(actions.actionReceiptOrder, Salereceipt.id, status);
+      handleAction(actions.actionReceiptOrder, Salereceipt.id, status, text);
     }
   };
 
-  const handleFinancial = (id, status) => {
-    handleAction(actions.actionReceiptFinancial, id, status);
+  const handleFinancial = (id, status, text) => {
+    handleAction(actions.actionReceiptFinancial, id, status, text);
   };
 
-  const handleWarehouse = (id, status) => {
-    handleAction(actions.actionReceiptWarehouse, id, status);
+  const handleWarehouse = (id, status, text) => {
+    handleAction(actions.actionReceiptWarehouse, id, status, text);
   };
 
   const handleClassName = (Salereceipt, name = 'cus') => {
@@ -101,30 +106,48 @@ export default function Bills() {
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
         {Salereceipt?.status === 0 && (
           <>
-            <Icon title='Phê duyệt' size={22} className={handleClassName(Salereceipt)} onClick={() => handleOrder(Salereceipt, 1)} icon={'accept'} />
+            <Icon
+              title='Phê duyệt'
+              size={22}
+              className={handleClassName(Salereceipt)}
+              onClick={() => handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công')}
+              icon={'accept'}
+            />
 
             <Icon size={22} className={handleClassName(Salereceipt)} icon={'edit'} />
             <Icon
               title='Hủy đơn hàng'
               size={22}
               className={handleClassName(Salereceipt)}
-              onClick={() => handleOrder(Salereceipt, 6)}
+              onClick={() => handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công')}
               icon={'cancel'}
             />
           </>
         )}
         {Salereceipt?.status === 1 && (
-          <Icon title='Yêu cầu xuất kho' size={22} className='cursor-pointer' onClick={() => handleFinancial(Salereceipt?.id, 2)} icon={'tag'} />
+          <Icon
+            title='Yêu cầu xuất kho'
+            size={22}
+            className='cursor-pointer'
+            onClick={() => handleFinancial(Salereceipt?.id, 2, 'Yêu cầu xuất kho thành công')}
+            icon={'tag'}
+          />
         )}
         {Salereceipt?.status === 2 && (
-          <Icon title='Xác nhận xuất kho' size={30} className='cursor-pointer' onClick={() => handleWarehouse(Salereceipt?.id, 3)} icon={'ship'} />
+          <Icon
+            title='Xác nhận xuất kho'
+            size={30}
+            className='cursor-pointer'
+            onClick={() => handleWarehouse(Salereceipt?.id, 3, 'Xác nhận xuất kho')}
+            icon={'ship'}
+          />
         )}
         {Salereceipt?.status === 5 && (
           <Icon
             title='Xác nhận hủy'
             size={30}
             className='cursor-pointer'
-            onClick={() => handleWarehouse(Salereceipt?.id, 3)}
+            onClick={() => handleWarehouse(Salereceipt?.id, 3, 'Hủy đơn hàng thành công')}
             icon={'waiting-cancel'}
           />
         )}
@@ -132,14 +155,16 @@ export default function Bills() {
           <>
             <img
               title='Giao hàng thành công'
+              height={23}
               className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt?.id, 4)}
+              onClick={() => handleWarehouse(Salereceipt?.id, 4, 'Xác nhận giao hàng thành công')}
               src='/images/accept_file.svg'
             />
             <img
               title='Giao hàng thất bại'
+              height={23}
               className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt?.id, 6)}
+              onClick={() => handleWarehouse(Salereceipt?.id, 6, 'Xác nhận giao hàng thất bại')}
               src='/images/cancel_file.svg'
             />
           </>
@@ -269,6 +294,18 @@ export default function Bills() {
       />
       <Modal
         title={<div className='text-2xl text-center'>Chi tiết đơn hàng</div>}
+        footer={null}
+        onCancel={close}
+        open={isOpen}
+        width={748}
+        okText='Xác nhận'
+        cancelText='Hủy'
+        className='top-10'
+      >
+        <ReceiptDetail product={_item} />
+      </Modal>
+      <Modal
+        title={<div className='text-2xl text-center'>Sửa hóa đơn</div>}
         footer={null}
         onCancel={close}
         open={isOpen}

@@ -1,5 +1,5 @@
 import Icon from 'icon-icomoon';
-import { CiMoneyBill, FaHackerrank, FaProductHunt, MdOutlineInventory, MdOutlineReport } from 'react-icons/all';
+import { CiMoneyBill, FaHackerrank, FaProductHunt, MdOutlineInventory, TbLayoutList } from 'react-icons/all';
 
 const routes = [
   {
@@ -7,6 +7,12 @@ const routes = [
     icon: <CiMoneyBill size={24} />,
     key: '',
     path: '',
+  },
+  {
+    title: 'DANH MỤC SẢN PHẨM',
+    icon: <TbLayoutList size={20} />,
+    key: 'productType',
+    path: 'productType',
   },
   {
     title: 'SẢN PHẨM',

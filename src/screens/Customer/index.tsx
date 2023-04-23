@@ -24,7 +24,7 @@ type typeRank = {
   discount: number;
 };
 
-export default function Rank() {
+export default function Customer() {
   const dispatch = useAppDispatch();
   const [_rank, setRank] = useState<typeRank[]>([]);
   const { isOpen, close, open } = useToggle();

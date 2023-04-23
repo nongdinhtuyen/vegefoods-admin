@@ -1,22 +1,8 @@
-import actions from '../../redux/actions/receipt';
 import { Button, Divider, Empty, Steps } from 'antd';
 import BigNumber from 'bignumber.js';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
 import ProductComponent from 'components/ProductComponent';
-import consts from 'consts';
-import { useEffect } from 'react';
-import { FiMapPin } from 'react-icons/all';
-import { BsShieldCheck } from 'react-icons/bs';
-import { CgNotes } from 'react-icons/cg';
-import { FaShippingFast } from 'react-icons/fa';
-import { IoChevronBackSharp } from 'react-icons/io5';
-import { MdOutlineCancel } from 'react-icons/md';
-import { TbClipboardList } from 'react-icons/tb';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from 'redux/store';
-import styled from 'styled-components';
-import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
 
@@ -44,7 +30,7 @@ export default function ReceiptDetail({ product }) {
             ))}
             <div className='py-2 text-right text-lg'>
               Tổng tiền:{' '}
-              {!new BigNumber(product.Salereceipt.total).isEqualTo(0) && (
+              {new BigNumber(product.Salereceipt.total).isGreaterThan(product.Salereceipt.totalAfterSale) && (
                 <del className='italic font-medium mr-2 text-gray-900'>{utils.formatCurrency(product.Salereceipt.total)}</del>
               )}
               <span className='font-bold text-primary'>{utils.formatCurrency(product.Salereceipt.totalAfterSale)}</span> VNĐ

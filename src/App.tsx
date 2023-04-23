@@ -5,9 +5,10 @@ import LayoutContainer from 'layout/LayoutContainer';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from 'redux/store';
 import Bills from 'screens/Bills';
-import Inventory from 'screens/Inventory';
+import Customer from 'screens/Customer';
 import Login from 'screens/Login';
 import Product from 'screens/Product';
+import ProductType from 'screens/ProductType';
 import Provider from 'screens/Provider';
 import Rank from 'screens/Rank';
 import Warehouse from 'screens/Warehouse';
@@ -52,9 +53,11 @@ function App() {
         >
           <Route index element={<Bills />} />
           <Route path='product' element={<Product />} />
+          <Route path='productType' element={<ProductType />} />
           <Route path='provider' element={<Provider />} />
           <Route path='rank' element={<Rank />} />
           <Route path='warehouse' element={<Warehouse />} />
+          <Route path='customer' element={<Customer />} />
         </Route>
         <Route
           path='/login'

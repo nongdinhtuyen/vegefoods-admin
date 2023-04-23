@@ -2,6 +2,8 @@ import AddOrderEntryForm from './AddOrderEntryForm';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Table, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
+import axios from 'axios';
+import { BASEURL } from 'bootstrap';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
@@ -10,7 +12,7 @@ import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
-import { MdDeleteForever } from 'react-icons/all';
+import { RiFileExcel2Line } from 'react-icons/all';
 import actions from 'redux/actions/warehouse';
 import { useAppDispatch } from 'redux/store';
 import styled from 'styled-components';
@@ -73,6 +75,17 @@ export default function Warehouse() {
   useEffect(() => {
     getData();
   }, []);
+
+  const importExcel = async (id) => {
+    const response = await window.axios.get(`/warehouse/import/excel/${id}`, { params: {}, responseType: 'blob' });
+    const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute('download', 'import.xlsx'); //any other extension
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
 
   const importColumns: any = [
     {
@@ -148,6 +161,7 @@ export default function Warehouse() {
         <div className='flex items-center gap-x-4 justify-center'>
           <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
           <Icon size={22} className='cursor-pointer' title='Xác nhận đã thanh toán' icon={'update-status'} onClick={() => acceptWarehouse(id)} />
+          <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => importExcel(id)} />
         </div>
       ),
     },
@@ -214,7 +228,7 @@ export default function Warehouse() {
       key: 'id',
       render: (id, record) => (
         <div className='flex items-center gap-x-4 justify-center'>
-          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
+          <Icon size={18} title='Chi tiết đơn nhập' className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
         </div>
       ),
     },
