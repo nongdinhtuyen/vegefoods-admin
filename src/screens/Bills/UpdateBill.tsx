@@ -21,9 +21,10 @@ interface DataType {
   quantity: number;
 }
 
-export default function UpdateBill({ isOpen, close, id, updateItem }) {
+export default function UpdateBill({ isOpen, close, id, updateItem, getData }) {
   const dispatch = useAppDispatch();
   const [_dataSource, setDataSource] = useState<DataType[]>([]);
+  const [_error, setError] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,14 +42,16 @@ export default function UpdateBill({ isOpen, close, id, updateItem }) {
   const handleSave = (row: DataType) => {
     const newData = [..._dataSource];
     const index = newData.findIndex((item) => row.key === item.key);
+    const oldItem: any = _.find(updateItem, (item: any) => row.key === item.idProduct);
     const item = newData[index];
-    console.log('🚀 ~ file: UpdateBill.tsx:46 ~ handleSave ~ item.quantity:', row.quantity, item.quantity);
-    if (row.quantity > item.quantity) {
+    if (row.quantity > oldItem.productList.remain) {
+      setError(true);
       openNotification({
         type: 'error',
         description: `Số lượng ${item.name} nhập lớn hơn số lượng sản phẩm khả dụng`,
       });
     } else {
+      setError(false);
       newData.splice(index, 1, {
         ...item,
         ...{ ...row },
@@ -116,44 +119,41 @@ export default function UpdateBill({ isOpen, close, id, updateItem }) {
     };
   });
 
-  const handleClose = () => {
-    setDataSource([]);
-    close();
-  };
-
   const handleOk = () => {
-    dispatch(
-      actions.actionUpdateReceipt({
-        params: {
-          id,
-          body: {
-            infoCart: _.reduce(
-              _dataSource,
-              (obj, item) => {
-                obj[item.id] = item.quantity;
-                return obj;
-              },
-              {}
-            ),
+    if (!_error) {
+      dispatch(
+        actions.actionUpdateReceipt({
+          params: {
+            id,
+            body: {
+              infoCart: _.reduce(
+                _dataSource,
+                (obj, item) => {
+                  obj[item.id] = item.quantity;
+                  return obj;
+                },
+                {}
+              ),
+            },
           },
-        },
-        callbacks: {
-          onSuccess(data) {
-            close();
-            setDataSource([]);
-            openNotification({
-              description: 'Sửa đơn hàng thành công',
-              type: 'success',
-            });
+          callbacks: {
+            onSuccess(data) {
+              close();
+              getData();
+              openNotification({
+                description: 'Sửa đơn hàng thành công',
+                type: 'success',
+              });
+            },
           },
-        },
-      })
-    );
+        })
+      );
+    }
   };
 
   const handleCancel = () => {
-    console.log(123);
     close();
+    setDataSource([]);
   };
 
   return (

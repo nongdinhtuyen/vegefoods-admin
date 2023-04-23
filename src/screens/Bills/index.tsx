@@ -318,7 +318,7 @@ export default function Bills() {
       >
         <BillDetail product={_item} />
       </Modal>
-      <UpdateBill close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
+      <UpdateBill getData={getData} close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
     </ReceiptWrapper>
   );
 }
