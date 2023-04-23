@@ -15,7 +15,6 @@ const layout = {
 };
 
 const normFile = (e: any) => {
-  console.log('🚀 ~ file: UpdateProduct.tsx:18 ~ normFile ~ e:', e);
   if (!utils.isImage(e.file.name)) {
     return [];
   }
