@@ -2,8 +2,10 @@ import AddOrderEntryForm from './AddOrderEntryForm';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Table, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
+import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
-import consts, { DEFAULT_PAGE_SIZE } from 'consts';
+import CustomImage from 'components/CustomImage';
+import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -28,23 +30,23 @@ export default function Warehouse() {
     current: 1,
     data: [],
   });
+  const [_date, setDate] = useState<any>([]);
   const { open, close, isOpen } = useToggle();
+  const { open: warehoseOpen, close: warehoseClose, isOpen: warehoseIsOpen } = useToggle();
+  const { open: detailOpen, close: detailClose, isOpen: detailIsOpen } = useToggle();
   const [_form] = Form.useForm();
-  const [_isUpdate, setIsUpdate] = useState(false);
   const [_id, setId] = useState(0);
   const [_active, setActive] = useState('1');
-  const defaultDate: any = [];
+  const [_detail, setDetail] = useState([]);
 
-  const getDataImport = ({ current = _import.current, date = defaultDate } = {}) => {
-    setImport((draft) => {
-      draft.current = current;
-    });
+  const getData = ({ current = _import.current, date = _date, key = _active } = {}) => {
+    const [action, setAction] = key === '1' ? ['actionGetImportWarehouse', setImport] : ['actionGetExportWarehouse', setExport];
     dispatch(
-      actions.actionGetImportWarehouse({
+      actions[action]({
         params: { current, count: DEFAULT_PAGE_SIZE, from: date[0], to: date[1] },
         callbacks: {
           onSuccess({ data, total }) {
-            setImport((draft) => {
+            setAction((draft) => {
               draft.data = data;
               draft.total = total;
             });
@@ -54,19 +56,14 @@ export default function Warehouse() {
     );
   };
 
-  const getDataExport = ({ current = _import.current, date = defaultDate } = {}) => {
-    setExport((draft) => {
-      draft.current = current;
-    });
+  const getDataDetail = (id) => {
+    const action = _active === '1' ? 'actionGetImportWarehouseById' : 'actionGetExportWarehouseById';
     dispatch(
-      actions.actionGetExportWarehouse({
-        params: { current, count: DEFAULT_PAGE_SIZE, from: date[0], to: date[1] },
+      actions[action]({
+        params: { id },
         callbacks: {
           onSuccess({ data, total }) {
-            setExport((draft) => {
-              draft.data = data;
-              draft.total = total;
-            });
+            setDetail(data.data);
           },
         },
       })
@@ -74,7 +71,7 @@ export default function Warehouse() {
   };
 
   useEffect(() => {
-    getDataImport();
+    getData();
   }, []);
 
   const importColumns: any = [
@@ -86,7 +83,7 @@ export default function Warehouse() {
       key: 'id',
     },
     {
-      width: '15%',
+      width: '10%',
       align: 'center',
       title: 'Người nhập',
       dataIndex: 'adminList',
@@ -104,7 +101,7 @@ export default function Warehouse() {
     {
       align: 'center',
       width: '10%',
-      title: 'Nhà cung cấp',
+      title: 'Ngày tạo phiếu',
       dataIndex: 'createDate',
       key: 'createDate',
       render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
@@ -123,7 +120,7 @@ export default function Warehouse() {
       title: 'Trạng thái thanh toán',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => consts.PRODUCT_STATUS_STRING[status],
+      render: (status) => consts.WAREHOUSE_STATUS[status],
     },
     {
       width: '10%',
@@ -148,9 +145,9 @@ export default function Warehouse() {
       dataIndex: 'id',
       key: 'id',
       render: (id, record) => (
-        <div className='flex items-center gap-x-2 justify-center'>
-          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => updateProvider(record)} />
-          <Icon size={22} className='cursor-pointer' title='Cập nhật trạng thái' icon={'update-status'} onClick={() => showConfirm(id)} />
+        <div className='flex items-center gap-x-4 justify-center'>
+          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
+          <Icon size={22} className='cursor-pointer' title='Xác nhận đã thanh toán' icon={'update-status'} onClick={() => acceptWarehouse(id)} />
         </div>
       ),
     },
@@ -216,56 +213,90 @@ export default function Warehouse() {
       dataIndex: 'id',
       key: 'id',
       render: (id, record) => (
-        <div className='flex items-center gap-x-2 justify-center'>
-          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => updateProvider(record)} />
+        <div className='flex items-center gap-x-4 justify-center'>
+          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
         </div>
       ),
     },
   ];
 
-  const showConfirm = (id) => {
-    Modal.confirm({
-      icon: <ExclamationCircleFilled />,
-      content: `Bạn có chắc chắn xóa nhà cung cấp ${id} không?`,
-      okText: 'Xác nhận',
-      cancelText: 'Hủy',
-      onOk() {
-        // dispatch(
-        //   actions.actionDeleteProvider({
-        //     params: { id: _id },
-        //     callbacks: {
-        //       onSuccess({ data, total }) {
-        //         getData();
-        //         handleCancel();
-        //       },
-        //     },
-        //   })
-        // );
-      },
-      onCancel() {
-        console.log('Cancel');
-      },
-    });
+  const columns: any = [
+    {
+      width: '5%',
+      align: 'center',
+      title: 'ID',
+      dataIndex: 'idProduct',
+      key: 'idProduct',
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Tên sản phẩm',
+      dataIndex: 'productList',
+      key: 'productList',
+      render: (productList) => productList.name,
+    },
+    {
+      width: '5%',
+      align: 'center',
+      title: 'Hình ảnh',
+      dataIndex: 'productList',
+      key: 'productList',
+      render: (productList) => (
+        <CustomImage width={70} height={70} className='object-contain' src={utils.baseUrlImage(productList.img)} preview={true} />
+      ),
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Giá nhập (VNĐ)',
+      dataIndex: 'price',
+      key: 'price',
+      render: utils.formatCurrency,
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Số lượng',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      render: utils.formatCurrency,
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Thành tiền (VNĐ)',
+      dataIndex: 'total',
+      key: 'total',
+      render: utils.formatCurrency,
+    },
+  ];
+
+  const acceptWarehouse = (id) => {
+    warehoseOpen();
+    setId(id);
   };
 
-  const updateProvider = (record) => {
-    open();
-    setId(record.id);
-    _form.setFieldsValue(record);
-    setIsUpdate(true);
+  const orderDetail = (record) => {
+    detailOpen();
+    getDataDetail(record.id);
   };
 
-  const handleOk = () => {
-    const handleAction = _isUpdate ? 'actionUpdateProvider' : 'actionCreateProvider';
+  const handleAcceptWarehouse = () => {
     _form
       .validateFields()
       .then((values) => {
         dispatch(
-          actions[handleAction]({
-            params: { ...values, phone: values.phone + '', id: _id },
+          actions.actionAcceptImportWarehouse({
+            params: { timePay: dayjs(values.timePay).unix(), id: _id },
             callbacks: {
               onSuccess() {
-                handleCancel();
+                openNotification({
+                  description: 'Xác nhận phiếu nhập kho hàng đã thanh toán thành công',
+                  type: 'success',
+                });
+                getData();
+                handleCancelWarehouse();
               },
             },
           })
@@ -274,10 +305,9 @@ export default function Warehouse() {
       .catch(console.log);
   };
 
-  const handleCancel = () => {
+  const handleCancelWarehouse = () => {
     _form.resetFields();
-    close();
-    setIsUpdate(false);
+    warehoseClose();
   };
 
   const items: TabsProps['items'] = [
@@ -290,7 +320,7 @@ export default function Warehouse() {
           dataSource={_import.data}
           columns={importColumns}
           pagination={{
-            onChange: (page) => getDataImport({ current: page }),
+            onChange: (page) => getData({ current: page }),
             showSizeChanger: false,
             current: _import.current,
             pageSize: DEFAULT_PAGE_SIZE,
@@ -309,7 +339,7 @@ export default function Warehouse() {
           dataSource={_export.data}
           columns={exportColumns}
           pagination={{
-            onChange: (page) => getDataExport({ current: page }),
+            onChange: (page) => getData({ current: page }),
             showSizeChanger: false,
             current: _export.current,
             pageSize: DEFAULT_PAGE_SIZE,
@@ -322,22 +352,19 @@ export default function Warehouse() {
   ];
 
   const handleDate = (values) => {
-    console.log('🚀 ~ file: index.tsx:324 ~ handleDate ~ values:', values);
     const date = values ? [dayjs(values[0]).unix(), dayjs(values[1]).unix()] : [];
-    if (_active === '1') {
-      getDataImport({ date });
-    } else {
-      getDataExport({ date });
-    }
+    setDate(date);
+    getData({ date });
   };
 
-  const onChange = ({ key = '1', date }: any = {}) => {
+  const onChange = ({ key = '1' }) => {
     setActive(key);
-    if (key === '1') {
-      getDataImport({ current: _import.current, date });
-    } else {
-      getDataExport({ current: _export.current, date });
-    }
+    getData({ key });
+  };
+
+  const handleClose = () => {
+    warehoseClose();
+    _form.resetFields();
   };
 
   return (
@@ -361,7 +388,36 @@ export default function Warehouse() {
           </>
         }
       />
-      <AddOrderEntryForm isOpen={isOpen} close={close} />
+      <Modal width={400} onOk={handleAcceptWarehouse} title='Xác nhận đã thanh toán' onCancel={handleClose} open={warehoseIsOpen}>
+        <Form labelWrap className='mt-4' labelAlign='left' form={_form}>
+          <Form.Item label='Ngày thanh toán' name='timePay' rules={[{ required: true }]}>
+            <DatePicker format={'DD/MM/YYYY HH:mm:ss'} disabledDate={(current) => current && current > dayjs().endOf('day')} />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        width={800}
+        footer={null}
+        onOk={handleAcceptWarehouse}
+        title={_active === '1' ? 'Chi tiết phiếu nhập' : 'Chi tiết phiếu xuất'}
+        onCancel={() => {
+          setDetail([]);
+          detailClose();
+        }}
+        open={detailIsOpen}
+      >
+        <Table
+          bordered
+          rowKey={'id'}
+          dataSource={_detail}
+          columns={columns}
+          pagination={{
+            pageSize: DEFAULT_SMALL_PAGE_SIZE,
+            hideOnSinglePage: true,
+          }}
+        />
+      </Modal>
+      <AddOrderEntryForm getDataWarehouse={getData} isOpen={isOpen} close={close} />
     </>
   );
 }

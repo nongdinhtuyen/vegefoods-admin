@@ -1,6 +1,7 @@
 import { openNotification } from './Notify';
 import axios, { ParamsSerializerOptions } from 'axios';
 import BigNumber from 'bignumber.js';
+import { BASEURL_IMG } from 'bootstrap';
 import consts from 'consts';
 import dayjs from 'dayjs';
 import humanizeDuration from 'humanize-duration';
@@ -51,8 +52,7 @@ const getDp = (num) => {
 };
 
 const baseUrlImage = (img) => {
-  // return `http://127.0.0.1:8089/raw/${img}`;
-  return `http://192.168.0.103:8089/raw/${img}`
+  return `${BASEURL_IMG}/raw/${img}`;
 };
 
 function getExtension(filename) {
@@ -64,7 +64,6 @@ const imageSizeRequired = (file, value) => {
   const isLt = new BigNumber(file.size).div(1024).div(1024).isLessThan(value);
   return isLt;
 };
-
 
 const validateEmail = (email: string = ''): any => {
   return String(email)
@@ -93,8 +92,8 @@ const dumpRequest = ({ file, onSuccess }, callback) => {
   const formData = new FormData();
   formData.append('myFile', file);
   const customAxios = axios.create({
-    // baseURL: 'https://upload.mediacloud.mobilelab.vn',
-    baseURL: 'http://192.168.0.103:8089',
+    baseURL: BASEURL_IMG,
+    // baseURL: 'http://192.168.0.105:8089',
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -128,5 +127,5 @@ export default {
   getDp,
   formatCurrencyWithDecimal,
   formatCurrencyWithDecimalFloor,
-  validateEmail
+  validateEmail,
 };

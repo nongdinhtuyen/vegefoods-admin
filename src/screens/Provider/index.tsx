@@ -79,6 +79,7 @@ export default function Provider() {
       title: 'Số điện thoại',
       dataIndex: 'phone',
       key: 'phone',
+      render: (phone) => formatPhoneNumber(`+84${phone}`),
     },
     {
       align: 'center',
@@ -180,7 +181,7 @@ export default function Provider() {
           Thêm nhà cung cấp
         </Button>
       </div>
-      <ProductsOffered open={openOffer} close={closeOffer} isOpen={isOpenOffer} id={_id} />
+      <ProductsOffered close={closeOffer} isOpen={isOpenOffer} id={_id} />
       <Modal width={560} title={_isUpdate ? 'Sửa nhà cung cấp' : 'Thêm nhà cung cấp'} open={isOpen} onOk={handleOk} onCancel={handleCancel}>
         <Form labelWrap className='mt-4' {...layout} labelAlign='left' form={_form} name='control-hooks'>
           <Form.Item label='Tên nhà cung cấp' name='name' rules={[{ required: true }]}>
@@ -217,7 +218,7 @@ export default function Provider() {
               // onChange={(value) => setPhoneNumber(formatPhoneNumber(value ?? ''))}
               // formatter={(value: any) => `${formatPhoneNumber(value)}`}
               // parser={(value) => console.log(value) || value!.replace(' ', '')}
-              formatter={(value) => `${formatPhoneNumber(`+84${value}`)}`}
+              formatter={(value) => `0${formatPhoneNumber(`+84${value}`)}`}
               parser={(value) => value!.replace(' ', '')}
               className='w-full'
               controls={false}

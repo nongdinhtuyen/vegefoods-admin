@@ -11,7 +11,7 @@ const consts = {
   STAGING: 'staging',
 
   TYPE_PAYMENT_ONLINE: 0,
-  TYPE_PAYMENT_OCD: 1,
+  TYPE_PAYMENT_COD: 1,
 
   PRODUCT_STATUS: {
     WAITING_FOR_APPROVAL: 0,
@@ -31,6 +31,11 @@ const consts = {
     4: 'Giao hàng thành công',
     5: 'Chờ duyệt hủy',
     6: 'Đã hủy',
+  },
+
+  WAREHOUSE_STATUS: {
+    0: 'Chưa thanh toán',
+    1: 'Đã thanh toán',
   },
 };
 

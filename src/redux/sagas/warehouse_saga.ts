@@ -4,6 +4,7 @@ import {
   ACCEPT_IMPORT_WAREHOUSE,
   CREATE_IMPORT_WAREHOUSE,
   GET_EXPORT_WAREHOUSE,
+  GET_EXPORT_WAREHOUSE_BY_ID,
   GET_IMPORT_WAREHOUSE,
   GET_IMPORT_WAREHOUSE_BY_ID,
 } from 'redux/actions/warehouse';
@@ -51,6 +52,20 @@ function* getImportWarehouseById(action) {
   );
 }
 
+function* getExportWarehouseById(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const data = yield call((params) => rf.getRequest('WarehouseRequest').getExportWarehouseById(params), params);
+        return data;
+      },
+      key: GET_EXPORT_WAREHOUSE_BY_ID,
+    },
+    callbacks
+  );
+}
+
 function* createImportWarehouse(action) {
   const { params, callbacks } = action.payload;
   yield unfoldSaga(
@@ -82,6 +97,7 @@ function* acceptImportWarehouseById(action) {
 function* watchRank() {
   yield takeLatest(GET_EXPORT_WAREHOUSE, getExportWarehouse);
   yield takeLatest(GET_IMPORT_WAREHOUSE_BY_ID, getImportWarehouseById);
+  yield takeLatest(GET_EXPORT_WAREHOUSE_BY_ID, getExportWarehouseById);
   yield takeLatest(GET_IMPORT_WAREHOUSE, getImportWarehouse);
   yield takeLatest(CREATE_IMPORT_WAREHOUSE, createImportWarehouse);
   yield takeLatest(ACCEPT_IMPORT_WAREHOUSE, acceptImportWarehouseById);

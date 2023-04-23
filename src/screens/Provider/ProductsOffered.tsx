@@ -2,6 +2,7 @@ import { AutoComplete, Avatar, Button, Form, Input, InputNumber, Modal, Select, 
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import { EditableCell, EditableRow } from 'components/EditContextCustom';
 import consts, { DEFAULT_LARGE_PAGE_SIZE, DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import { WAIT_TIME_DEBOUNCE } from 'consts';
 import Icon from 'icon-icomoon';
@@ -14,12 +15,15 @@ import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
 
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
-};
+interface DataType {
+  key: React.Key;
+  id: React.Key;
+  name: string;
+  img: string;
+  price: number;
+}
 
-export default function ProductsOffered({ open, isOpen, close, id }) {
+export default function ProductsOffered({ isOpen, close, id }) {
   const dispatch = useAppDispatch();
   const [_product, setProduct] = useImmer({
     total: 0,
@@ -89,7 +93,18 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
     }
   }, [isOpen]);
 
-  const columns: any = [
+  const handleSave = (row: DataType) => {
+    const newData = [..._productOffer];
+    const index = newData.findIndex((item) => row.key === item.key);
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...{ ...row },
+    });
+    setProductOffer(newData);
+  };
+
+  const defaultColumns: any = [
     {
       width: '5%',
       align: 'center',
@@ -118,6 +133,7 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
       title: 'Giá cung cấp (VNĐ)',
       dataIndex: 'price',
       key: 'price',
+      editable: true,
       render: utils.formatCurrency,
     },
 
@@ -130,6 +146,28 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
       render: (id, record) => <Icon title='Xóa sản phẩm' size={22} className='cursor-pointer' icon={'delete'} onClick={() => deleteProduct(id)} />,
     },
   ];
+
+  const columns = defaultColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record: DataType) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave,
+      }),
+    };
+  });
+
+  const handleClose = () => {
+    setProductOffer([]);
+    close();
+    _form.resetFields();
+  };
 
   const handleOk = () => {
     _form
@@ -150,6 +188,10 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
             },
             callbacks: {
               onSuccess() {
+                openNotification({
+                  description: 'Cập nhật sản phẩm của nhà cung cấp thành công',
+                  type: 'success',
+                });
                 getData();
                 handleCancel();
               },
@@ -164,13 +206,6 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
     _form.resetFields();
     close();
     setIsUpdate(false);
-  };
-
-  const onScrollGroup = (event) => {
-    const { scrollTop, scrollHeight } = event.target;
-    if (scrollTop > 0.6 * scrollHeight) {
-      getData({ current: _product.current + 1 });
-    }
   };
 
   const handleSearch = _.debounce((value) => {
@@ -200,12 +235,12 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
       <Form labelWrap layout='inline' className='my-4' labelAlign='left' form={_form} name='add' initialValues={{ price: 0 }}>
         <Form.Item className='!flex-1' label='Sản phẩm' name='id'>
           <Select
-            onPopupScroll={onScrollGroup}
+            // onPopupScroll={onScrollGroup}
             showSearch
             className='w-full'
             onChange={(value, option: any) => setItem(option)}
             onSearch={handleSearch}
-            filterOption={(input, option) => true}
+            filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
             options={_.map(_product.data, (item: any) => ({
               label: (
                 <div className='flex gap-x-1 items-center'>
@@ -239,11 +274,17 @@ export default function ProductsOffered({ open, isOpen, close, id }) {
             </Button>
           )}
         </Form.Item>
-        <Button>Sửa</Button>
       </Form>
       <Table
         bordered
+        components={{
+          body: {
+            row: EditableRow,
+            cell: EditableCell,
+          },
+        }}
         rowKey={'id'}
+        className='editable-row'
         dataSource={_productOffer}
         columns={columns}
         pagination={{

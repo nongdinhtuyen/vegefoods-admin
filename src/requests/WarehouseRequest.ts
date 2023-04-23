@@ -12,10 +12,14 @@ export default class WarehouseRequest extends BaseRequest {
   }
   getImportWarehouseById(params) {
     const url = `${prefix}/import/${params.id}`;
-    return this.get(url, params);
+    return this.get(url);
+  }
+  getExportWarehouseById(params) {
+    const url = `${prefix}/export/${params.id}`;
+    return this.get(url);
   }
   createImportWarehouse(params) {
-    const url = `${prefix}/import/${params.id}`;
+    const url = `${prefix}/import`;
     return this.post(url, params);
   }
   acceptImportWarehouseById(params) {

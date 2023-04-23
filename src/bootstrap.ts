@@ -6,7 +6,10 @@ import { IStringifyOptions, parse, ParsedQs, stringify } from 'qs';
 
 dayjs.locale('vi'); // use locale
 
-export const BASEURL = 'http://192.168.0.103:4869/v1/orderfood/admin';
+// export const BASEURL = 'http://192.168.0.105:4869/v1/orderfood/admin';
+export const BASEURL = 'http://172.20.10.2:4869/v1/orderfood/admin';
+export const BASEURL_IMG = 'http://172.20.10.2:8089';
+// export const BASEURL_IMG = 'http://127.0.0.1:8089';
 // export const BASEURL = 'http://192.168.68.104:4869/v1/orderfood/admin';
 // export const BASEURL = 'http://localhost:4869/v1/orderfood';
 // export const BASEURL = 'http://192.168.68.101:4869/v1/orderfood';

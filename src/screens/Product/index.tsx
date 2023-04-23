@@ -29,7 +29,7 @@ export default function Category() {
   const { isOpen: isOpenUpdate, close: closeUpdate, open: openUpdate } = useToggle();
   const [_item, setItem] = useState({});
 
-  const getData = ({ current = _product.current, body = {} } = {}) => {
+  const getData = ({ current = _product.current, name = _search, type_product = _productType !== -1 ? [_productType] : [] } = {}) => {
     setProduct((draft) => {
       draft.current = current;
     });
@@ -39,10 +39,9 @@ export default function Category() {
           current,
           count: DEFAULT_SMALL_PAGE_SIZE,
           body: {
-            name: _search,
             remaining: -1,
-            type_product: [],
-            ...body,
+            name,
+            type_product,
           },
         },
         callbacks: {
@@ -124,7 +123,7 @@ export default function Category() {
     {
       width: '10%',
       align: 'center',
-      title: 'Giá bán',
+      title: 'Giá bán (VNĐ)',
       dataIndex: 'price',
       key: 'price',
       render: utils.formatCurrency,
@@ -135,6 +134,7 @@ export default function Category() {
       title: 'Đánh giá trung bình',
       dataIndex: 'rateAVG',
       key: 'rateAVG',
+      render: (rateAVG) => rateAVG.toFixed(1),
     },
     {
       width: '10%',
@@ -177,9 +177,7 @@ export default function Category() {
 
   const handleSearch = (value) => {
     getData({
-      body: {
-        name: value,
-      },
+      name: value,
     });
   };
 
@@ -200,9 +198,7 @@ export default function Category() {
             setProductType(value);
             getData({
               current: 1,
-              body: {
-                type_product: value !== -1 ? [value] : [],
-              },
+              type_product: [value],
             });
           }}
         />

@@ -7,7 +7,7 @@ export default class RankRequest extends BaseRequest {
     return this.get(url);
   }
   updateRank(params) {
-    const url = `${prefix}`;
-    return this.post(url, params);
+    const url = `${prefix}/${params.id}?discount=${params.discount}&total=${params.total}`;
+    return this.post(url);
   }
 }

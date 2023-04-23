@@ -14,10 +14,16 @@
   }
 }
 
-.editable-row .ant-form-item-explain {
-  position: absolute;
-  top: 100%;
-  font-size: 12px;
+.editable-row {
+  .ant-form-item-explain {
+    position: absolute;
+    top: 100%;
+    font-size: 12px;
+  }
+  .editable-cell-value-wrap {
+    cursor: pointer;
+    color: #1890ff;
+  }
 }
 
 .header {

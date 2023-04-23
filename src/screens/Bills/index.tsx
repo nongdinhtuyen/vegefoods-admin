@@ -10,12 +10,20 @@ import ReceiptDetail from 'screens/Bills/BillDetail';
 import styled from 'styled-components';
 import { useImmer } from 'use-immer';
 
+import classNames from 'classnames';
 import _ from 'lodash';
 
 const ReceiptWrapper = styled.div`
   .ant-table-thead {
     .ant-table-cell {
       text-align: center !important;
+    }
+  }
+  .disable {
+    color: #00000040;
+    cursor: not-allowed;
+    path {
+      fill: currentColor;
     }
   }
 `;
@@ -70,8 +78,10 @@ export default function Bills() {
     );
   };
 
-  const handleOrder = (id, status) => {
-    handleAction(actions.actionReceiptOrder, id, status);
+  const handleOrder = (Salereceipt, status) => {
+    if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
+      handleAction(actions.actionReceiptOrder, Salereceipt.id, status);
+    }
   };
 
   const handleFinancial = (id, status) => {
@@ -82,15 +92,25 @@ export default function Bills() {
     handleAction(actions.actionReceiptWarehouse, id, status);
   };
 
+  const handleClassName = (Salereceipt, name = 'cus') => {
+    return classNames(name, Salereceipt.typePayment === consts.TYPE_PAYMENT_COD ? 'cursor-pointer' : 'disable');
+  };
+
   const renderActions = (Salereceipt: any) => {
-    const newAction = [];
     return (
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
         {Salereceipt?.status === 0 && (
           <>
-            <Icon title='Phê duyệt' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt?.id, 1)} icon={'accept'} />
-            <Icon size={22} className='cursor-pointer' icon={'edit'} />
-            <Icon title='Hủy đơn hàng' size={22} className='cursor-pointer' onClick={() => handleOrder(Salereceipt?.id, 6)} icon={'cancel'} />
+            <Icon title='Phê duyệt' size={22} className={handleClassName(Salereceipt)} onClick={() => handleOrder(Salereceipt, 1)} icon={'accept'} />
+
+            <Icon size={22} className={handleClassName(Salereceipt)} icon={'edit'} />
+            <Icon
+              title='Hủy đơn hàng'
+              size={22}
+              className={handleClassName(Salereceipt)}
+              onClick={() => handleOrder(Salereceipt, 6)}
+              icon={'cancel'}
+            />
           </>
         )}
         {Salereceipt?.status === 1 && (
@@ -144,7 +164,7 @@ export default function Bills() {
       key: 'Salereceipt',
       render: (Salereceipt, record) => (
         <div
-          className='text-[#1677ff] cursor-pointer'
+          className='text-[#1677ff] cursor-pointer text-center'
           onClick={() => {
             open();
             setItem(record);
@@ -183,7 +203,7 @@ export default function Bills() {
       title: 'Hình thức thanh toán',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt) => (Salereceipt?.typePayment === consts.TYPE_PAYMENT_OCD ? 'Thanh toán COD' : 'Thanh toán online'),
+      render: (Salereceipt) => (Salereceipt?.typePayment === consts.TYPE_PAYMENT_COD ? 'Thanh toán COD' : 'Thanh toán online'),
     },
     {
       width: '10%',
