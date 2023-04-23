@@ -168,8 +168,8 @@ export default function Customer() {
       width: '10%',
       align: 'center',
       title: 'Trạng thái',
-      dataIndex: 'totalBuy',
-      key: 'totalBuy',
+      dataIndex: 'status',
+      key: 'status',
       render: (status, record) => <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />,
     },
     {
