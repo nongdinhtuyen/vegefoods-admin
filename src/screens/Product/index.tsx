@@ -189,6 +189,7 @@ export default function Category() {
             }}
           />
           <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' />
+          {/* <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' /> */}
         </Space>
         <Button onClick={handleCreate}>Thêm sản phẩm</Button>
       </div>

@@ -9,6 +9,7 @@ import Customer from 'screens/Customer';
 import Login from 'screens/Login';
 import Product from 'screens/Product';
 import ProductType from 'screens/ProductType';
+import Promotion from 'screens/Promotion';
 import Provider from 'screens/Provider';
 import Rank from 'screens/Rank';
 import Warehouse from 'screens/Warehouse';
@@ -58,6 +59,7 @@ function App() {
           <Route path='rank' element={<Rank />} />
           <Route path='warehouse' element={<Warehouse />} />
           <Route path='customer' element={<Customer />} />
+          <Route path='promotion' element={<Promotion />} />
         </Route>
         <Route
           path='/login'

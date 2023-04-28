@@ -49,7 +49,7 @@ export default function Aside() {
   }
 
   const renderLabel = (title: ReactNode, path: string) => (
-    <Link className='child' to={path}>
+    <Link className='child uppercase' to={path}>
       {title}
     </Link>
   );
