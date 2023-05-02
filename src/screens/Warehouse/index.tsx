@@ -12,7 +12,8 @@ import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
-import { RiFileExcel2Line } from 'react-icons/all';
+import { AiOutlineEdit, RiFileExcel2Line } from 'react-icons/all';
+import providerActions from 'redux/actions/provider';
 import actions from 'redux/actions/warehouse';
 import { useAppDispatch } from 'redux/store';
 import styled from 'styled-components';
@@ -40,6 +41,24 @@ export default function Warehouse() {
   const [_id, setId] = useState(0);
   const [_active, setActive] = useState('1');
   const [_detail, setDetail] = useState([]);
+  const [_isEdit, setIsEdit] = useState(false);
+  const [_provider, setProvider] = useState([]);
+
+  const getProvider = () => {
+    dispatch(
+      providerActions.actionGetProvider({
+        params: {
+          current: 1,
+          count: 100,
+        },
+        callbacks: {
+          onSuccess({ data, total }) {
+            setProvider(data);
+          },
+        },
+      })
+    );
+  };
 
   const getData = ({ current = _import.current, date = _date, key = _active } = {}) => {
     const [action, setAction] = key === '1' ? ['actionGetImportWarehouse', setImport] : ['actionGetExportWarehouse', setExport];
@@ -74,6 +93,7 @@ export default function Warehouse() {
 
   useEffect(() => {
     getData();
+    getProvider();
   }, []);
 
   const importExcel = async (id) => {
@@ -159,7 +179,8 @@ export default function Warehouse() {
       key: 'id',
       render: (id, record) => (
         <div className='flex items-center gap-x-4 justify-center'>
-          <Icon size={18} className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
+          <Icon size={18} className='cursor-pointer' title='Chi tiết' icon={'info'} onClick={() => orderDetail(record)} />
+          <AiOutlineEdit size={18} className='cursor-pointer' title='Sửa phiếu nhập' onClick={() => handleEdit(record)} />
           <Icon size={22} className='cursor-pointer' title='Xác nhận đã thanh toán' icon={'update-status'} onClick={() => acceptWarehouse(id)} />
           <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => importExcel(id)} />
         </div>
@@ -286,6 +307,13 @@ export default function Warehouse() {
     },
   ];
 
+  const handleEdit = (record) => {
+    open();
+    getDataDetail(record.id);
+    setIsEdit(true);
+    setId(record.id);
+  };
+
   const acceptWarehouse = (id) => {
     warehoseOpen();
     setId(id);
@@ -396,7 +424,14 @@ export default function Warehouse() {
               disabledDate={(current) => current && current > dayjs().endOf('day')}
               onChange={handleDate}
             />
-            <Button type='primary' className='ml-4' onClick={open}>
+            <Button
+              type='primary'
+              className='ml-4'
+              onClick={() => {
+                open();
+                setIsEdit(false);
+              }}
+            >
               Thêm phiếu nhập
             </Button>
           </>
@@ -431,7 +466,7 @@ export default function Warehouse() {
           }}
         />
       </Modal>
-      <AddOrderEntryForm getDataWarehouse={getData} isOpen={isOpen} close={close} />
+      <AddOrderEntryForm id={_id} provider={_provider} detail={_detail} getDataWarehouse={getData} isOpen={isOpen} close={close} isEdit={_isEdit} />
     </>
   );
 }

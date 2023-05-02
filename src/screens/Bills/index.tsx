@@ -1,5 +1,5 @@
 import UpdateBill from './UpdateBill';
-import { Modal, Select, Space, Table } from 'antd';
+import { Form, Input, Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import consts, { DEFAULT_PAGE_SIZE } from 'consts';
@@ -39,10 +39,12 @@ export default function Bills() {
     typeStatus: '-1',
   });
   const { open, close, isOpen } = useToggle();
+  const { open: openReject, close: closeReject, isOpen: isOpenReject } = useToggle();
   const { open: openReceipt, close: closeReceipt, isOpen: isOpenReceipt } = useToggle();
   const [_item, setItem] = useState<any>({});
   const [_id, setId] = useState(0);
   const [_updateItem, setUpdateItem] = useState({});
+  const [_form] = Form.useForm();
 
   const getData = ({ current = _receipt.current, typeStatus = _receipt.typeStatus } = {}) => {
     setReceipt((draft) => {
@@ -67,15 +69,18 @@ export default function Bills() {
     getData();
   }, []);
 
-  const handleAction = (action, id, status, text) => {
+  const handleAction = (action, id, status, text, adminNote = '') => {
     dispatch(
       action({
         params: {
           status,
           id,
+          adminNote,
         },
         callbacks: {
           onSuccess(data) {
+            _form.resetFields();
+            closeReject();
             openNotification({
               description: text,
               type: 'success',
@@ -88,6 +93,10 @@ export default function Bills() {
   };
 
   const handleOrder = (Salereceipt, status, text) => {
+    if (status === 6) {
+      openReject();
+      return;
+    }
     if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
       handleAction(actions.actionReceiptOrder, Salereceipt.id, status, text);
     }
@@ -97,15 +106,19 @@ export default function Bills() {
     handleAction(actions.actionReceiptFinancial, id, status, text);
   };
 
-  const handleWarehouse = (id, status, text) => {
-    handleAction(actions.actionReceiptWarehouse, id, status, text);
+  const handleWarehouse = (Salereceipt, status, text) => {
+    if (_.includes([3, 6], status)) {
+      openReject();
+      return;
+    }
+    handleAction(actions.actionReceiptWarehouse, Salereceipt.id, status, text);
   };
 
   const handleClassName = (Salereceipt, name = 'cus') => {
     return classNames(name, Salereceipt.typePayment === consts.TYPE_PAYMENT_COD ? 'cursor-pointer' : 'disable');
   };
 
-  const renderActions = (Salereceipt: any, Infosalereceipt: any) => {
+  const renderActions = (record, Salereceipt: any, Infosalereceipt: any) => {
     return (
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
         {Salereceipt?.status === 0 && (
@@ -133,7 +146,10 @@ export default function Bills() {
               title='Hủy đơn hàng'
               size={22}
               className={handleClassName(Salereceipt)}
-              onClick={() => handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công')}
+              onClick={() => {
+                handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
+                setItem(record);
+              }}
               icon={'cancel'}
             />
           </>
@@ -152,7 +168,7 @@ export default function Bills() {
             title='Xác nhận xuất kho'
             size={30}
             className='cursor-pointer'
-            onClick={() => handleWarehouse(Salereceipt?.id, 3, 'Xác nhận xuất kho')}
+            onClick={() => handleWarehouse(Salereceipt, 3, 'Xác nhận xuất kho')}
             icon={'ship'}
           />
         )}
@@ -161,7 +177,10 @@ export default function Bills() {
             title='Xác nhận hủy'
             size={30}
             className='cursor-pointer'
-            onClick={() => handleWarehouse(Salereceipt?.id, 3, 'Hủy đơn hàng thành công')}
+            onClick={() => {
+              setItem(record);
+              handleWarehouse(Salereceipt, 3, 'Hủy đơn hàng thành công');
+            }}
             icon={'waiting-cancel'}
           />
         )}
@@ -171,14 +190,17 @@ export default function Bills() {
               title='Giao hàng thành công'
               height={23}
               className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt?.id, 4, 'Xác nhận giao hàng thành công')}
+              onClick={() => handleWarehouse(Salereceipt, 4, 'Xác nhận giao hàng thành công')}
               src='/images/accept_file.svg'
             />
             <img
               title='Giao hàng thất bại'
               height={23}
               className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt?.id, 6, 'Xác nhận giao hàng thất bại')}
+              onClick={() => {
+                handleWarehouse(Salereceipt, 6, 'Xác nhận giao hàng thất bại');
+                setItem(record);
+              }}
               src='/images/cancel_file.svg'
             />
           </>
@@ -250,7 +272,13 @@ export default function Bills() {
       title: 'Trạng thái đơn hàng',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt: any) => consts.PRODUCT_STATUS_STRING[Salereceipt?.status],
+      render: (Salereceipt: any) => (
+        <div>
+          {consts.PRODUCT_STATUS_STRING[Salereceipt?.status]}
+          <br />
+          {Salereceipt?.adminNote ? `Lí do: ( ${Salereceipt.adminNote} )` : ''}
+        </div>
+      ),
     },
     {
       width: '20%',
@@ -270,7 +298,7 @@ export default function Bills() {
       title: 'Hành động',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt, record) => renderActions(Salereceipt, record.Infosalereceipt),
+      render: (Salereceipt, record) => renderActions(record, Salereceipt, record.Infosalereceipt),
     },
   ];
 
@@ -317,6 +345,33 @@ export default function Bills() {
         className='top-10'
       >
         <BillDetail product={_item} />
+      </Modal>
+      <Modal
+        title={<div className='text-2xl text-center'>{_item?.Salereceipt?.status === 6 ? 'Lí do giao hàng thất bại' : 'Lí do hủy đơn hàng'}</div>}
+        onCancel={() => {
+          _form.resetFields();
+          closeReject();
+        }}
+        onOk={() => {
+          _form.validateFields().then((value) => {
+            if (_item.Salereceipt?.status === 0) {
+              handleAction(actions.actionReceiptOrder, _item.Salereceipt.id, 6, 'Hủy đơn hàng thành công', value.adminNote);
+            } else if (_item.Salereceipt?.status === 5) {
+              handleAction(actions.actionReceiptWarehouse, _item.Salereceipt.id, 3, 'Hủy đơn hàng thành công', value.adminNote);
+            } else {
+              handleAction(actions.actionReceiptWarehouse, _item.Salereceipt.id, 6, 'Xác nhận giao hàng thất bại', value.adminNote);
+            }
+          });
+        }}
+        open={isOpenReject}
+        okText='Xác nhận'
+        cancelText='Hủy'
+      >
+        <Form form={_form}>
+          <Form.Item name='adminNote'>
+            <Input />
+          </Form.Item>
+        </Form>
       </Modal>
       <UpdateBill getData={getData} close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
     </ReceiptWrapper>

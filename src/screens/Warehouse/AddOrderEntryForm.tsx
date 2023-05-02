@@ -32,32 +32,32 @@ interface DataType {
   total: number;
 }
 
-const AddOrderEntryForm = ({ isOpen, close, getDataWarehouse }) => {
+const AddOrderEntryForm = ({ detail, id, provider, isOpen, close, getDataWarehouse, isEdit }) => {
   const [_form] = Form.useForm();
   const dispatch = useAppDispatch();
-  const [_provider, setProvider] = useState([]);
   const [_dataSource, setDataSource] = useState<DataType[]>([]);
   const [_id, setId] = useState(0);
 
-  useEffect(() => {
-    getProvider();
-  }, []);
-
-  const getProvider = () => {
-    dispatch(
-      providerActions.actionGetProvider({
-        params: {
-          current: 1,
-          count: 100,
-        },
-        callbacks: {
-          onSuccess({ data, total }) {
-            setProvider(data);
-          },
-        },
-      })
-    );
+  const renderData = (data) => {
+    return _.map(data, (item: any) => ({
+      id: item.idProduct,
+      key: item.idProduct,
+      img: item.productList.img,
+      name: item.productList.name,
+      price: item.price,
+      amount: item.quantity ?? 0,
+      total: item.total ?? 0,
+    }));
   };
+
+  useEffect(() => {
+    if (isEdit) {
+      const newData = renderData(detail);
+      setDataSource(newData);
+      setId(id);
+    }
+  }, [isEdit, id, detail]);
+
   const getProductOfProvider = (id) => {
     setId(id);
     dispatch(
@@ -69,15 +69,7 @@ const AddOrderEntryForm = ({ isOpen, close, getDataWarehouse }) => {
         },
         callbacks: {
           onSuccess({ data, total }) {
-            const newData = _.map(data, (item: any) => ({
-              id: item.idProduct,
-              key: item.idProduct,
-              img: item.productList.img,
-              name: item.productList.name,
-              price: item.price,
-              amount: 0,
-              total: 0,
-            }));
+            const newData = renderData(data);
             setDataSource(newData);
           },
         },
@@ -86,12 +78,15 @@ const AddOrderEntryForm = ({ isOpen, close, getDataWarehouse }) => {
   };
 
   const handleOk = () => {
+    console.log('🚀 ~ file: AddOrderEntryForm.tsx:100 ~ .then ~ _id:', id);
+
+    const action = isEdit ? 'actionUpdateImportWarehouse' : 'actionCreateImportWarehouse';
+
     _form
       .validateFields()
       .then((values) => {
-        dispatch(
-          actions.actionCreateImportWarehouse({
-            params: {
+        const params = !isEdit
+          ? {
               ...values,
               idProvider: _id,
               importDate: dayjs(values.date).unix(),
@@ -103,7 +98,21 @@ const AddOrderEntryForm = ({ isOpen, close, getDataWarehouse }) => {
                 },
                 {}
               ),
-            },
+            }
+          : {
+              id,
+              products: _.reduce(
+                _dataSource,
+                (obj, item) => {
+                  obj[item.id] = item.amount;
+                  return obj;
+                },
+                {}
+              ),
+            };
+        dispatch(
+          actions[action]({
+            params,
             callbacks: {
               onSuccess({ data }) {
                 openNotification({
@@ -211,12 +220,19 @@ const AddOrderEntryForm = ({ isOpen, close, getDataWarehouse }) => {
   };
 
   return (
-    <Modal className='top-10' width={840} onOk={handleOk} title='Thêm phiếu nhập kho' onCancel={handleClose} open={isOpen}>
+    <Modal
+      className='top-10'
+      width={840}
+      onOk={handleOk}
+      title={isEdit ? 'Sửa phiếu nhập kho' : 'Thêm phiếu nhập kho'}
+      onCancel={handleClose}
+      open={isOpen}
+    >
       <Form labelWrap className='mt-4' labelAlign='left' form={_form}>
-        <Form.Item label='Nhà cung cấp' name='name' rules={[{ required: true }]}>
+        <Form.Item hidden={isEdit} label='Nhà cung cấp' name='name' rules={[{ required: !isEdit }]}>
           <Select
             options={[
-              ..._.map(_provider, (item: any) => ({
+              ..._.map(provider, (item: any) => ({
                 value: item.id,
                 label: item.name,
               })),

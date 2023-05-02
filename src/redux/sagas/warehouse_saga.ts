@@ -8,6 +8,7 @@ import {
   GET_IMPORT_WAREHOUSE,
   GET_IMPORT_WAREHOUSE_BY_ID,
   IMPORT_EXCEL,
+  UPDATE_IMPORT_WAREHOUSE,
 } from 'redux/actions/warehouse';
 import { unfoldSaga } from 'redux/redux_helper';
 
@@ -109,6 +110,20 @@ function* importExcel(action) {
   );
 }
 
+function* updateImportWarehouseById(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const data = yield call((params) => rf.getRequest('WarehouseRequest').updateImportWarehouseById(params), params);
+        return data;
+      },
+      key: UPDATE_IMPORT_WAREHOUSE,
+    },
+    callbacks
+  );
+}
+
 function* watchRank() {
   yield takeLatest(GET_EXPORT_WAREHOUSE, getExportWarehouse);
   yield takeLatest(GET_IMPORT_WAREHOUSE_BY_ID, getImportWarehouseById);
@@ -117,6 +132,7 @@ function* watchRank() {
   yield takeLatest(CREATE_IMPORT_WAREHOUSE, createImportWarehouse);
   yield takeLatest(ACCEPT_IMPORT_WAREHOUSE, acceptImportWarehouseById);
   yield takeLatest(IMPORT_EXCEL, importExcel);
+  yield takeLatest(UPDATE_IMPORT_WAREHOUSE, updateImportWarehouseById);
 }
 
 export default function* rootSaga() {

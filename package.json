@@ -1,8 +1,8 @@
 {
-  "name": "@trustkeys-crypto/wallet",
+  "name": "vegefoods",
   "private": true,
   "version": "1.0.0",
-  "description": "This is a private project",
+  "description": "This is a foods project",
   "type": "module",
   "license": "MIT",
   "scripts": {

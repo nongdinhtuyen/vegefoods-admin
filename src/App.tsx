@@ -4,6 +4,7 @@ import AppProvider from 'components/AppProvider';
 import LayoutContainer from 'layout/LayoutContainer';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from 'redux/store';
+import Admin from 'screens/Admin';
 import Bills from 'screens/Bills';
 import Customer from 'screens/Customer';
 import Login from 'screens/Login';
@@ -60,6 +61,7 @@ function App() {
           <Route path='warehouse' element={<Warehouse />} />
           <Route path='customer' element={<Customer />} />
           <Route path='promotion' element={<Promotion />} />
+          <Route path='admin' element={<Admin />} />
         </Route>
         <Route
           path='/login'

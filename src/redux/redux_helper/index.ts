@@ -44,7 +44,7 @@ export function createActionTypeOnBeginning(key) {
   return createAction(`${key.toString()}_BEGAN`);
 }
 
-export function createActionTypeOnSuccess(key) {
+export function createActionTypeOnSuccess(key): any {
   return createAction(`${key.toString()}_SUCCEEDED`);
 }
 

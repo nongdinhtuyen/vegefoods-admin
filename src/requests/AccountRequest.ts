@@ -6,4 +6,8 @@ export default class AccountRequest extends BaseRequest {
     const url = `${prefix}/login`;
     return this.post(url, params);
   }
+  getAccount(params) {
+    const url = `${prefix}`;
+    return this.get(url, params);
+  }
 }

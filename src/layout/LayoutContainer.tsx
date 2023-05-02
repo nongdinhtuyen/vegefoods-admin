@@ -1,5 +1,6 @@
 import Aside from './Aside';
 import HeaderComponent from './HeaderComponent';
+import NewHeader from './NewHeader';
 import { ConfigProvider, Layout } from 'antd';
 import viVN from 'antd/lib/locale/vi_VN';
 import consts from 'consts';
@@ -57,7 +58,7 @@ function LayoutContainer() {
         <Layout className='w-screen' hasSider>
           <Aside />
           <Layout className='!relative w-unset'>
-            <HeaderComponent />
+            <NewHeader />
             <ContentWrapper>
               <div>
                 <Outlet />

@@ -30,4 +30,9 @@ export default class WarehouseRequest extends BaseRequest {
     const url = `${prefix}/import/excel/${params.id}`;
     return this.get(url);
   }
+  updateImportWarehouseById(params) {
+    const url = `${prefix}/import/${params.id}`;
+    delete params.id;
+    return this.put(url, params);
+  }
 }

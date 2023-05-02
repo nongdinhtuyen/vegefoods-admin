@@ -23,14 +23,14 @@ export default function Category() {
     current: 1,
     data: [],
   });
-  const [_productType, setProductType] = useState(-1);
+  const [_productType, setProductType] = useState(_.map(productType, (item: any) => item.id));
   const [_search, setSearch] = useState('');
   const { isOpen: isOpenDetail, close: closeDetail, open: openDetail } = useToggle();
   const { isOpen: isOpenUpdate, close: closeUpdate, open: openUpdate } = useToggle();
   const [_item, setItem] = useState({});
   const [_isCreate, setIsCreate] = useState(false);
 
-  const getData = ({ current = _product.current, name = _search, type_product = _productType !== -1 ? [_productType] : [] } = {}) => {
+  const getData = ({ current = _product.current, name = _search, type_product = _productType } = {}) => {
     setProduct((draft) => {
       draft.current = current;
     });
@@ -171,20 +171,21 @@ export default function Category() {
       <div className='flex items-center justify-between'>
         <Space className='mb-3'>
           <Select
+            mode='multiple'
             options={[
-              { label: 'Tất cả', value: -1 },
+              // { label: 'Tất cả', value: -1 },
               ..._.map(productType, (item: any) => ({
                 value: item.id,
                 label: item.name,
               })),
             ]}
             value={_productType}
-            className='w-52'
-            onSelect={(value: any) => {
+            // className='w-52'
+            onChange={(value: any) => {
               setProductType(value);
               getData({
                 current: 1,
-                type_product: [value],
+                type_product: value,
               });
             }}
           />

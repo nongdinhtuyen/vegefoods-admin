@@ -25,6 +25,7 @@ const accountReducer = createReducer(initialState, (builder) => {
     state.isLogin = false;
   });
   builder.addCase(createActionTypeOnSuccess(actions.actionGetUserInfo), (state, { payload }: any) => {
+    console.log('🚀 ~ file: account_reducer.ts:30 ~ builder.addCase ~ payload:', payload);
     state.profile = payload.data;
   });
 });

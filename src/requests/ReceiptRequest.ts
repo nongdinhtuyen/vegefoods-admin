@@ -26,4 +26,9 @@ export default class ReceiptRequest extends BaseRequest {
     const url = `${prefix}/order/${params.id}`;
     return this.post(url, params.body);
   }
+
+  cancelReceipt(params) {
+    const url = `${prefix}/${params.id}`;
+    return this.put(url);
+  }
 }

@@ -8,26 +8,28 @@ import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
-import productActions from 'redux/actions/product';
-import actions from 'redux/actions/promotion';
+import actions from 'redux/actions/account';
 import { useAppDispatch, useAppSelector } from 'redux/store';
 import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
+
+const MALE = 0,
+  FEMALE = 1,
+  OTHER = 2;
+
+const gender = {
+  [MALE]: 'Nam',
+  [FEMALE]: 'Nữ',
+  [OTHER]: 'Khác',
+};
 
 const layout = {
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
 };
 
-type typePromotion = {
-  endDate: number;
-  price: number;
-  productId: number;
-  startDate: number;
-};
-
-export default function Promotion() {
+export default function Admin() {
   const dispatch = useAppDispatch();
   const { isOpen, close, open } = useToggle();
   const [_form] = Form.useForm();
@@ -41,33 +43,17 @@ export default function Promotion() {
 
   const getData = ({ current = _data.current } = {}) => {
     dispatch(
-      actions.actionGetPromotion({
+      actions.actionGetAccount({
         params: {
           current,
           count: DEFAULT_PAGE_SIZE,
-          isActive: -1,
         },
         callbacks: {
           onSuccess({ data, total }) {
             setData((draft) => {
               draft.data = data;
+              draft.total = total;
             });
-          },
-        },
-      })
-    );
-  };
-
-  const getProduct = () => {
-    dispatch(
-      productActions.actionGetProduct({
-        params: {
-          current: 1,
-          count: 100,
-        },
-        callbacks: {
-          onSuccess({ data, total }) {
-            setProduct(data.products);
           },
         },
       })
@@ -76,7 +62,6 @@ export default function Promotion() {
 
   useEffect(() => {
     getData();
-    getProduct();
   }, []);
 
   const columns: any = [
@@ -90,63 +75,54 @@ export default function Promotion() {
     {
       width: '10%',
       align: 'center',
-      title: 'Hình ảnh',
-      dataIndex: 'productList',
-      key: 'productList',
-      render: (productList) => <CustomImage height={50} src={utils.baseUrlImage(productList.img)} />,
+      title: 'Tên đăng nhập',
+      dataIndex: 'userName',
+      key: 'userName',
     },
     {
       width: '10%',
       align: 'center',
       title: 'Tên',
-      dataIndex: 'productList',
-      key: 'productList',
-      render: (productList) => productList.name,
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       width: '10%',
       align: 'center',
-      title: 'Giá (VNĐ)',
-      dataIndex: 'price',
-      key: 'price',
-      render: utils.formatCurrency,
+      title: 'Số điện thoại',
+      dataIndex: 'phone',
+      key: 'phone',
     },
     {
       width: '10%',
       align: 'center',
-      title: 'Thời gian bắt đầu',
-      dataIndex: 'startDate',
-      key: 'startDate',
-      render: (startDate) => utils.formatTimeFromUnix(startDate, 'DD/MM/YYYY HH:mm:ss'),
+      title: 'Giới tính',
+      dataIndex: 'sex',
+      key: 'sex',
+      render: (sex) => gender[sex],
     },
     {
       width: '10%',
       align: 'center',
-      title: 'Thời gian kết thúc',
-      dataIndex: 'endDate',
-      key: 'endDate',
-      render: (endDate) => utils.formatTimeFromUnix(endDate, 'DD/MM/YYYY HH:mm:ss'),
+      title: 'Địa chỉ',
+      dataIndex: 'address',
+      key: 'address',
     },
     {
       width: '10%',
       align: 'center',
-      title: 'Hành động',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (isActive, record) => (
-        <Switch
-          checked={isActive}
-          onChange={(checked) => {
-            _form.setFieldsValue({
-              ...record,
-              isActive: checked,
-              time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
-            });
-            setId(record.id);
-            handleOk();
-          }}
-        />
-      ),
+      title: 'Email',
+      dataIndex: 'email',
+      key: 'email',
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (status === 0 ? 'Đang hoạt động' : 'Chưa kích hoạt'),
+      // render: (status, record) => <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />,
     },
     {
       width: '10%',
@@ -210,15 +186,6 @@ export default function Promotion() {
 
   return (
     <div className='text-right'>
-      <Button
-        onClick={() => {
-          open();
-          setId('');
-        }}
-        className='mb-3'
-      >
-        Thêm khuyến mại
-      </Button>
       <Table
         bordered
         rowKey={'id'}
@@ -233,57 +200,92 @@ export default function Promotion() {
           hideOnSinglePage: true,
         }}
       />
-      <Modal width={600} onOk={() => handleOk()} title={_id ? 'Sửa mã giảm giá' : 'Thêm mã giảm giá'} onCancel={handleClose} open={isOpen}>
-        <Form {...layout} labelWrap className='mt-4' labelAlign='left' form={_form}>
+      <Modal width={700} onOk={() => handleOk()} title={'Cập nhật thông tin'} onCancel={handleClose} open={isOpen}>
+        <Form {...layout} name='basic' className='m-auto' form={_form}>
           <Form.Item
-            label='Sản phẩm'
-            name='productId'
+            name='userName'
+            label='Tên đăng nhập'
             rules={[
               {
                 required: true,
+                message: 'Tên đăng nhập không được để trống',
               },
             ]}
           >
+            <Input disabled />
+          </Form.Item>
+          <Form.Item
+            label='Email'
+            name='email'
+            rules={[
+              {
+                required: true,
+                message: 'Email không được để trống',
+              },
+            ]}
+          >
+            <Input placeholder='Email' />
+          </Form.Item>
+          <Form.Item
+            name='name'
+            label='Tên'
+            rules={[
+              {
+                required: true,
+                message: 'Tên không được để trống',
+              },
+            ]}
+          >
+            <Input placeholder='Họ và tên' />
+          </Form.Item>
+          <Form.Item
+            label='Giới tính'
+            rules={[
+              {
+                required: true,
+                message: 'Giới tính không được để trống',
+              },
+            ]}
+            name='sex'
+          >
             <Select
-              showSearch
-              className='w-full'
-              filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
-              options={_.map(_product, (item: any) => ({
-                label: (
-                  <div className='flex gap-x-3 items-center'>
-                    <Avatar size='small' src={utils.baseUrlImage(item.img)} alt={item.img} />
-                    <div title={item.name} className='ellipsis'>
-                      {item.name}
-                    </div>
-                  </div>
-                ),
-                key: item.id,
-                name: item.name || '',
-                img: item.img || '',
-                value: item.id,
-              }))}
+              placeholder='Giới tính'
+              className='text-left'
+              options={[
+                { value: 0, label: 'Nam' },
+                { value: 1, label: 'Nữ' },
+                { value: 2, label: 'Khác' },
+              ]}
             />
           </Form.Item>
-          <Form.Item className='!flex-1' label='Thời gian hiệu lực' name='time'>
-            <DatePicker.RangePicker
-              className='w-full'
-              showTime={{ format: 'HH:mm:ss' }}
-              format='DD/MM/YYYY HH:mm:ss'
-              disabledDate={(current) => current && current < dayjs().startOf('day')}
-            />
+          <Form.Item
+            name='phone'
+            label='Số điện thoại'
+            rules={[
+              {
+                required: true,
+                message: 'Số điện thoại không được để trống',
+              },
+              {
+                type: 'number',
+                message: 'Số điện thoại không hợp lệ',
+                transform: (value) => _.toNumber(value),
+              },
+            ]}
+          >
+            <Input type='number' />
           </Form.Item>
-          <Form.Item hidden name='isActive'>
-            <Switch />
-          </Form.Item>
-          <Form.Item className='!flex-1' label='Giá' name='price'>
-            <InputNumber
-              formatter={(value: any) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-              addonAfter='VNĐ'
-              min={0}
-              controls={false}
-              className='w-full'
-            />
+          <Form.Item
+            name='address'
+            label='Địa chỉ'
+            rules={[
+              {
+                required: true,
+                message: 'Địa chỉ không được để trống',
+              },
+            ]}
+          >
+            <Input placeholder='Địa chỉ' />
           </Form.Item>
         </Form>
       </Modal>

@@ -1,5 +1,6 @@
 import rf from '../../requests/RequestFactory';
 import { LOGIN } from '../actions/account';
+import accountActions from '../actions/account';
 import initActions from '../actions/init';
 import productActions from '../actions/product';
 import utils from 'common/utils';
@@ -30,6 +31,7 @@ export function* saveMasterData(id) {
   // yield put(cartActions.actionGetCart({}));
   yield put(initActions.actionInitSucceed({}));
   yield put(productActions.actionGetProductType({ params: { current: 0, count: 100 } }));
+  yield put(createActionTypeOnSuccess(accountActions.actionGetUserInfo)({ data: utils.getSessionJSON() }));
 }
 
 function* watchInit() {

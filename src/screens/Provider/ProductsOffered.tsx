@@ -235,7 +235,6 @@ export default function ProductsOffered({ isOpen, close, id }) {
       <Form labelWrap layout='inline' className='my-4' labelAlign='left' form={_form} name='add' initialValues={{ price: 0 }}>
         <Form.Item className='!flex-1' label='Sản phẩm' name='id'>
           <Select
-            // onPopupScroll={onScrollGroup}
             showSearch
             className='w-full'
             onChange={(value, option: any) => setItem(option)}

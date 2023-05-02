@@ -13,11 +13,6 @@ import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
 
-const layout = {
-  labelCol: { span: 10 },
-  wrapperCol: { span: 14 },
-};
-
 const MALE = 0,
   FEMALE = 1,
   OTHER = 2;

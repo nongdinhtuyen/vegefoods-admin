@@ -1,6 +1,6 @@
 import { BASEURL } from '../../bootstrap';
 import rf from '../../requests/RequestFactory';
-import { GET_USER_INFO, LOGIN, LOGOUT, REGISTER, UPDATE_PROFILE } from '../actions/account';
+import { GET_ACCOUNT, GET_USER_INFO, LOGIN, LOGOUT, REGISTER, UPDATE_PROFILE } from '../actions/account';
 import { saveMasterData } from './init_saga';
 import axios from 'axios';
 import utils from 'common/utils';
@@ -27,8 +27,23 @@ function* login(action) {
   );
 }
 
+function* getAccount(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const resp = yield call((params) => rf.getRequest('AccountRequest').getAccount(params), params);
+        return resp;
+      },
+      key: GET_ACCOUNT,
+    },
+    callbacks
+  );
+}
+
 function* watchAccount() {
   yield takeLatest(LOGIN, login);
+  yield takeLatest(GET_ACCOUNT, getAccount);
 }
 
 export default function* rootSaga() {

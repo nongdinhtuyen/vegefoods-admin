@@ -1,5 +1,14 @@
 import Icon from 'icon-icomoon';
-import { BiUser, CiMoneyBill, FaHackerrank, FaProductHunt, IoPricetagsOutline, MdOutlineInventory, TbLayoutList } from 'react-icons/all';
+import {
+  BiUser,
+  CiMoneyBill,
+  FaHackerrank,
+  FaProductHunt,
+  IoPricetagsOutline,
+  MdOutlineAdminPanelSettings,
+  MdOutlineInventory,
+  TbLayoutList,
+} from 'react-icons/all';
 
 const routes = [
   {
@@ -49,6 +58,12 @@ const routes = [
     icon: <IoPricetagsOutline size={22} />,
     key: 'promotion',
     path: 'promotion',
+  },
+  {
+    title: 'QUẢN TRỊ TÀI KHOẢN',
+    icon: <MdOutlineAdminPanelSettings size={22} />,
+    key: 'admin',
+    path: 'admin',
   },
 ];
 
