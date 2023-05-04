@@ -73,6 +73,7 @@ function HeaderComponent() {
       </div>
     </div>
   );
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
