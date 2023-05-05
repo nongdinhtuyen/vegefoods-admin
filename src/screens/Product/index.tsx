@@ -172,6 +172,10 @@ export default function Category() {
         <Space className='mb-3'>
           <Select
             mode='multiple'
+            className='w-96'
+            showArrow={false}
+            maxTagCount='responsive'
+            filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
             options={[
               // { label: 'Tất cả', value: -1 },
               ..._.map(productType, (item: any) => ({
@@ -192,7 +196,9 @@ export default function Category() {
           <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' />
           {/* <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' /> */}
         </Space>
-        <Button onClick={handleCreate}>Thêm sản phẩm</Button>
+        <Button type='primary' onClick={handleCreate}>
+          Thêm sản phẩm
+        </Button>
       </div>
       <Table
         bordered

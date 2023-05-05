@@ -48,13 +48,13 @@ const routes = [
     path: 'rank',
   },
   {
-    title: 'Danh sách khách hàng',
+    title: 'Quản lý khách hàng',
     icon: <BiUser size={22} />,
     key: 'customer',
     path: 'customer',
   },
   {
-    title: 'Khuyến mãi',
+    title: 'Khuyến mại',
     icon: <IoPricetagsOutline size={22} />,
     key: 'promotion',
     path: 'promotion',

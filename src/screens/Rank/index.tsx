@@ -63,7 +63,7 @@ export default function Rank() {
     {
       width: '10%',
       align: 'center',
-      title: 'Tên sản phẩm',
+      title: 'Tên phân hạng',
       dataIndex: 'name',
       key: 'name',
     },
@@ -157,7 +157,7 @@ export default function Rank() {
             rules={[
               {
                 validator(rule, value, callback) {
-                  if (value) {
+                  if (value || value === 0) {
                     return handleValidate(value);
                   }
                   return Promise.reject(`Tổng chi tiêu không hợp lệ`);

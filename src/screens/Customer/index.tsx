@@ -7,6 +7,7 @@ import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
+import { MdOutlineMap } from 'react-icons/all';
 import actions from 'redux/actions/customer';
 import { useAppDispatch, useAppSelector } from 'redux/store';
 import { useImmer } from 'use-immer';
@@ -173,7 +174,8 @@ export default function Customer() {
       title: 'Hành động',
       dataIndex: 'id',
       key: 'id',
-      render: (id) => <Icon size={18} title='Chi tiết đơn nhập' className='cursor-pointer' icon={'info'} onClick={() => openAddress(id)} />,
+      render: (id) => <MdOutlineMap size={18} title='Sổ người nhận' className='cursor-pointer' onClick={() => openAddress(id)} />,
+      // render: (id) => <Icon size={18} title='Sổ người nhận' className='cursor-pointer' icon={'info'} onClick={() => openAddress(id)} />,
     },
   ];
 
@@ -235,7 +237,8 @@ export default function Customer() {
             <div className='text-gray-600'>Hiện tại</div>
             <div className='text-2xl'>{_customerStatics.totalActive}</div>
           </div>
-          <img title='Sản phẩm cung cấp' width={100} src='/images/group_active.svg' />
+          <img title='Sản phẩm cung cấp' width={100} src='/images/group.svg' />
+          {/* <img title='Sản phẩm cung cấp' width={100} src='/images/group_active.svg' /> */}
         </div>
       </div>
       <Table bordered rowKey={'id'} dataSource={_customer.data} columns={columns} pagination={{ hideOnSinglePage: true }} />

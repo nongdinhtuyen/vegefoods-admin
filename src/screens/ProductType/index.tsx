@@ -42,7 +42,7 @@ export default function ProductType() {
     {
       width: '10%',
       align: 'center',
-      title: 'Tên sản phẩm',
+      title: 'Tên danh mục',
       dataIndex: 'name',
       key: 'name',
     },
@@ -106,7 +106,9 @@ export default function ProductType() {
   return (
     <>
       <div className='text-right mb-2'>
-        <Button onClick={handleAdd}>Thêm danh mục</Button>
+        <Button type='primary' onClick={handleAdd}>
+          Thêm danh mục
+        </Button>
       </div>
       <Table
         bordered

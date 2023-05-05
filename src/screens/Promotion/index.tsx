@@ -232,6 +232,7 @@ export default function Promotion() {
   return (
     <div className='text-right'>
       <Button
+        type='primary'
         onClick={() => {
           open();
           setId('');

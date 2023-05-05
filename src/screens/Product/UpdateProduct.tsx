@@ -33,6 +33,7 @@ type Props = {
 };
 
 const UpdateProduct = ({ isOpen, close, getData, item, isCreate }: Props) => {
+  console.log('🚀 ~ file: UpdateProduct.tsx:36 ~ UpdateProduct ~ item:', item);
   const [_form] = Form.useForm();
   const dispatch = useAppDispatch();
   const [_imageUrl, setImageUrl] = useState<string>();
@@ -170,7 +171,23 @@ const UpdateProduct = ({ isOpen, close, getData, item, isCreate }: Props) => {
           />
         </Form.Item>
 
-        <Form.Item label='Số lượng còn lại' name='remain' rules={[{ required: true }]}>
+        <Form.Item
+          label='Số lượng còn lại'
+          name='remain'
+          rules={[
+            {
+              validator(rule, value, callback) {
+                if (!value) {
+                  return Promise.reject('Số lượng còn lại không hợp lệ');
+                }
+                if (value > item.remain) {
+                  return Promise.reject(`Số lượng còn lại không được quá ${item.remain}`);
+                }
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
           <InputNumber
             controls={false}
             formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}

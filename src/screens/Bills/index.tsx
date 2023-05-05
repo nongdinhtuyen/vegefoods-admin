@@ -107,7 +107,7 @@ export default function Bills() {
   };
 
   const handleWarehouse = (Salereceipt, status, text) => {
-    if (_.includes([3, 6], status)) {
+    if (_.includes([6], status)) {
       openReject();
       return;
     }
