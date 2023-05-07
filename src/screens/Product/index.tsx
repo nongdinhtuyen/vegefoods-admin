@@ -29,18 +29,21 @@ export default function Category() {
   const { isOpen: isOpenUpdate, close: closeUpdate, open: openUpdate } = useToggle();
   const [_item, setItem] = useState({});
   const [_isCreate, setIsCreate] = useState(false);
+  const [_remain, setRemain] = useState(-1);
 
-  const getData = ({ current = _product.current, name = _search, type_product = _productType } = {}) => {
+  const getData = ({ current = _product.current, name = _search, type_product = _productType, remain = _remain } = {}) => {
     setProduct((draft) => {
       draft.current = current;
     });
+    setRemain(remain);
+    setProductType(type_product);
     dispatch(
       actions.actionGetProduct({
         params: {
           current,
           count: DEFAULT_SMALL_PAGE_SIZE,
           body: {
-            remaining: -1,
+            remaining: remain,
             name,
             type_product,
           },
@@ -121,6 +124,7 @@ export default function Category() {
       title: 'Còn lại',
       dataIndex: 'remain',
       key: 'remain',
+      sorter: true,
     },
     {
       width: '5%',
@@ -157,6 +161,7 @@ export default function Category() {
 
   const handleSearch = (value) => {
     getData({
+      current: 1,
       name: value,
     });
   };
@@ -195,6 +200,29 @@ export default function Category() {
           />
           <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' />
           {/* <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' /> */}
+          {/* <Select
+            className='w-36'
+            options={[
+              ..._.map(
+                [
+                  { label: 'Tất cả', value: -1 },
+                  { label: 'Còn hàng', value: 1 },
+                  { label: 'Hết hàng', value: 0 },
+                ],
+                (item: any) => ({
+                  ...item,
+                })
+              ),
+            ]}
+            value={_remain}
+            onChange={(value: any) => {
+              setRemain(value);
+              getData({
+                remain: value,
+                current: 1,
+              });
+            }}
+          /> */}
         </Space>
         <Button type='primary' onClick={handleCreate}>
           Thêm sản phẩm
@@ -205,6 +233,14 @@ export default function Category() {
         rowKey={'id'}
         dataSource={_product.data}
         columns={columns}
+        onChange={(pagination, filters, sorter: any) => {
+          const sort = {
+            undefined: -1,
+            ascend: 1,
+            descend: 0,
+          };
+          getData({ current: 1, remain: sort[sorter.order] });
+        }}
         pagination={{
           onChange: (page) => getData({ current: page }),
           showSizeChanger: false,

@@ -1,3 +1,4 @@
+import PrintBill from './Print';
 import UpdateBill from './UpdateBill';
 import { Form, Input, Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
@@ -6,6 +7,8 @@ import consts, { DEFAULT_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
+import { IoReceiptOutline } from 'react-icons/all';
+import { useLocation } from 'react-router-dom';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
 import BillDetail from 'screens/Bills/BillDetail';
@@ -37,7 +40,9 @@ export default function Bills() {
     current: 1,
     data: [{}],
     typeStatus: '-1',
+    uid: 0,
   });
+  const location = useLocation();
   const { open, close, isOpen } = useToggle();
   const { open: openReject, close: closeReject, isOpen: isOpenReject } = useToggle();
   const { open: openReceipt, close: closeReceipt, isOpen: isOpenReceipt } = useToggle();
@@ -45,14 +50,17 @@ export default function Bills() {
   const [_id, setId] = useState(0);
   const [_updateItem, setUpdateItem] = useState({});
   const [_form] = Form.useForm();
+  const [_printData, setPrintData] = useState({});
+  const { open: openPrint, close: closePrint, isOpen: isPrint } = useToggle();
 
-  const getData = ({ current = _receipt.current, typeStatus = _receipt.typeStatus } = {}) => {
+  const getData = ({ current = _receipt.current, typeStatus = _receipt.typeStatus, uid = _receipt.uid } = {}) => {
     setReceipt((draft) => {
       draft.current = current;
+      draft.uid = uid;
     });
     dispatch(
       actions.actionGetReceipt({
-        params: { current, typeStatus, count: DEFAULT_PAGE_SIZE },
+        params: { current, typeStatus, count: DEFAULT_PAGE_SIZE, uid },
         callbacks: {
           onSuccess({ data, total }) {
             setReceipt((draft) => {
@@ -66,8 +74,13 @@ export default function Bills() {
   };
 
   useEffect(() => {
-    getData();
-  }, []);
+    console.log('🚀 ~ file: index.tsx:74 ~ useEffect ~ location.state:', location.state?.id);
+    if (location.state?.id) {
+      getData({ uid: location.state?.id });
+    } else {
+      getData({ uid: undefined });
+    }
+  }, [location]);
 
   const handleAction = (action, id, status, text, adminNote = '') => {
     dispatch(
@@ -205,6 +218,9 @@ export default function Bills() {
             />
           </>
         )}
+        {Salereceipt?.status === 4 && (
+          <IoReceiptOutline size={24} title='Sổ người nhận' className='cursor-pointer' onClick={() => printReceipt(record)} />
+        )}
       </div>
     );
   };
@@ -298,9 +314,14 @@ export default function Bills() {
       title: 'Hành động',
       dataIndex: 'Salereceipt',
       key: 'Salereceipt',
-      render: (Salereceipt, record) => renderActions(record, Salereceipt, record.Infosalereceipt),
+      render: (Salereceipt: any, record) => <>{renderActions(record, Salereceipt, record.Infosalereceipt)}</>,
     },
   ];
+
+  const printReceipt = (record) => {
+    setPrintData(record);
+    openPrint();
+  };
 
   return (
     <ReceiptWrapper>
@@ -374,6 +395,9 @@ export default function Bills() {
         </Form>
       </Modal>
       <UpdateBill getData={getData} close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
+      <div className='hidden'>
+        <PrintBill data={_printData} open={openPrint} close={closePrint} isOpen={isPrint} />
+      </div>
     </ReceiptWrapper>
   );
 }

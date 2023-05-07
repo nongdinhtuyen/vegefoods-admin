@@ -33,7 +33,6 @@ type Props = {
 };
 
 const UpdateProduct = ({ isOpen, close, getData, item, isCreate }: Props) => {
-  console.log('🚀 ~ file: UpdateProduct.tsx:36 ~ UpdateProduct ~ item:', item);
   const [_form] = Form.useForm();
   const dispatch = useAppDispatch();
   const [_imageUrl, setImageUrl] = useState<string>();

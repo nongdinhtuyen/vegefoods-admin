@@ -18,6 +18,9 @@ module.exports = {
       maxWidth: {
         container: 1140,
       },
+      gridTemplateColumns: {
+        auto: 'auto 1fr',
+      },
     },
   },
   plugins: [],

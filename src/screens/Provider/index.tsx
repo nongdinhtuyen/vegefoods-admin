@@ -1,13 +1,14 @@
 import ProductsOffered from './ProductsOffered';
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Table } from 'antd';
+import { Avatar, Button, Form, Input, InputNumber, Modal, Select, Space, Table } from 'antd';
 import utils from 'common/utils';
-import consts, { DEFAULT_PAGE_SIZE } from 'consts';
+import consts, { DEFAULT_LARGE_PAGE_SIZE, DEFAULT_PAGE_SIZE, WAIT_TIME_DEBOUNCE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import { MdDeleteForever } from 'react-icons/all';
 import PhoneInput, { formatPhoneNumber, isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input/input';
+import productActions from 'redux/actions/product';
 import actions from 'redux/actions/provider';
 import { useAppDispatch } from 'redux/store';
 import styled from 'styled-components';
@@ -33,15 +34,34 @@ export default function Provider() {
   const [_form] = Form.useForm();
   const [_isUpdate, setIsUpdate] = useState(false);
   const [_id, setId] = useState(0);
-  const [_phoneNumber, setPhoneNumber] = useState<any>('+84');
+  const [_product, setProduct] = useImmer({
+    total: 0,
+    current: 1,
+    data: [],
+  });
+  const [_filters, setFilters] = useImmer<any>({
+    arg: '',
+    pid: [],
+  });
 
-  const getData = ({ current = _provider.current } = {}) => {
+  const getData = ({ current = _provider.current, arg = _filters.arg, pid = _filters.pid } = {}) => {
     setProvider((draft) => {
       draft.current = current;
     });
+    setFilters((draft) => {
+      draft.pid = pid;
+      draft.arg = arg;
+    });
     dispatch(
       actions.actionGetProvider({
-        params: { current, count: DEFAULT_PAGE_SIZE },
+        params: {
+          current,
+          count: DEFAULT_PAGE_SIZE,
+          body: {
+            arg,
+            pid: _.map(pid, (item) => item + ''),
+          },
+        },
         callbacks: {
           onSuccess({ data, total }) {
             setProvider((draft) => {
@@ -56,6 +76,7 @@ export default function Provider() {
 
   useEffect(() => {
     getData();
+    getProducts();
   }, []);
 
   const columns: any = [
@@ -174,9 +195,78 @@ export default function Provider() {
     setIsUpdate(false);
   };
 
+  const getProducts = ({ current = _product.current, search = '' } = {}) => {
+    setProduct((draft) => {
+      draft.current = current;
+    });
+    dispatch(
+      productActions.actionGetProduct({
+        params: {
+          current,
+          count: DEFAULT_LARGE_PAGE_SIZE,
+          body: {
+            name: search,
+            remaining: -1,
+            type_product: [],
+          },
+        },
+        callbacks: {
+          onSuccess({ data, total }) {
+            setProduct((draft) => {
+              draft.data = data.products;
+              draft.total = total;
+            });
+          },
+        },
+      })
+    );
+  };
+
+  const handleSearch = _.debounce((value) => {
+    getProducts({ current: 1, search: value });
+  }, WAIT_TIME_DEBOUNCE);
+
+  const handleSearchName = _.debounce((e) => {
+    getData({ current: 1, arg: e.target.value });
+  }, WAIT_TIME_DEBOUNCE);
+
   return (
     <>
-      <div className='mb-3 text-right'>
+      <div className='mb-3 flex justify-between'>
+        <Space>
+          <Select
+            showSearch
+            className='w-[500px]'
+            allowClear
+            mode='multiple'
+            maxTagCount='responsive'
+            placeholder='Sản phẩm nhà cung cấp'
+            onChange={(value, option: any) => {
+              console.log(value);
+              getData({
+                current: 1,
+                pid: value,
+              });
+            }}
+            onSearch={handleSearch}
+            filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
+            options={_.map(_product.data, (item: any) => ({
+              label: (
+                <div className='flex gap-x-1 items-center'>
+                  <Avatar size='small' src={utils.baseUrlImage(item.img)} alt={item.img} />
+                  <div title={item.name} className='ellipsis'>
+                    {item.name}
+                  </div>
+                </div>
+              ),
+              key: item.id,
+              name: item.name || '',
+              img: item.img || '',
+              value: item.id,
+            }))}
+          />
+          <Input className='w-96' onChange={handleSearchName} placeholder='Tên nhà cung cấp' />
+        </Space>
         <Button type='primary' onClick={open}>
           Thêm nhà cung cấp
         </Button>
@@ -192,47 +282,8 @@ export default function Provider() {
             <Input.TextArea />
           </Form.Item>
 
-          <Form.Item
-            label='Số điện thoại'
-            name='phone'
-            required
-            // rules={[
-            //   ({ getFieldValue }) => ({
-            //     validator(rule, value, callback) {
-            //       if (isPossiblePhoneNumber(_phoneNumber, 'VN')) {
-            //         return Promise.resolve();
-            //       }
-            //       return Promise.reject('Số điện thoại không hợp lệ');
-            //     },
-            //   }),
-            // ]}
-          >
-            <InputNumber
-              // className={classNames(
-              //   'ant-input',
-              //   !isPossiblePhoneNumber(_phoneNumber, 'VN') && _phoneNumber !== '' ? 'ant-input-status-error' : 'ant-input-status-success'
-              // )}
-              // defaultCountry='VN'
-              // international
-              // value={_phoneNumber}
-              // onChange={(value) => setPhoneNumber(formatPhoneNumber(value ?? ''))}
-              // formatter={(value: any) => `${formatPhoneNumber(value)}`}
-              // parser={(value) => console.log(value) || value!.replace(' ', '')}
-              formatter={(value) => `0${formatPhoneNumber(`+84${value}`)}`}
-              parser={(value) => value!.replace(' ', '')}
-              className='w-full'
-              controls={false}
-            />
-            {/* <PhoneInput
-              className={classNames(
-                'ant-input',
-                !isPossiblePhoneNumber(_phoneNumber, 'VN') && _phoneNumber !== '' ? 'ant-input-status-error' : 'ant-input-status-success'
-              )}
-              // defaultCountry='VN'
-              international
-              value={_phoneNumber}
-              onChange={(value) => setPhoneNumber(formatPhoneNumber(value ?? ''))}
-            /> */}
+          <Form.Item label='Số điện thoại' name='phone' required>
+            <Input />
           </Form.Item>
           <Form.Item
             label='Email'

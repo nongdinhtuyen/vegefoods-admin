@@ -3,8 +3,8 @@ import BaseRequest from './BaseRequest';
 const prefix = 'provider';
 export default class ProviderRequest extends BaseRequest {
   getProvider(params) {
-    const url = `${prefix}`;
-    return this.get(url, params);
+    const url = `${prefix}/list?current=${params.current}&count=${params.count}`;
+    return this.post(url, params.body);
   }
   createProvider(params) {
     const url = `${prefix}`;

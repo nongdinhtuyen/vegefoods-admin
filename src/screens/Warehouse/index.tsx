@@ -3,6 +3,7 @@ import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Table, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { BASEURL } from 'bootstrap';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
@@ -40,7 +41,7 @@ export default function Warehouse() {
   const [_form] = Form.useForm();
   const [_id, setId] = useState(0);
   const [_active, setActive] = useState('1');
-  const [_detail, setDetail] = useState([]);
+  const [_detail, setDetail] = useState<any>({});
   const [_isEdit, setIsEdit] = useState(false);
   const [_provider, setProvider] = useState([]);
 
@@ -84,7 +85,8 @@ export default function Warehouse() {
         params: { id },
         callbacks: {
           onSuccess({ data, total }) {
-            setDetail(data.data);
+            console.log('🚀 ~ file: index.tsx:88 ~ onSuccess ~ data:', data);
+            setDetail(data);
           },
         },
       })
@@ -98,6 +100,17 @@ export default function Warehouse() {
 
   const importExcel = async (id) => {
     const response = await window.axios.get(`/warehouse/import/excel/${id}`, { params: {}, responseType: 'blob' });
+    const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.setAttribute('download', 'import.xlsx'); //any other extension
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
+  const exportExcel = async (id) => {
+    const response = await window.axios.get(`/warehouse/export/excel/${id}`, { params: {}, responseType: 'blob' });
     const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = downloadUrl;
@@ -211,14 +224,14 @@ export default function Warehouse() {
       dataIndex: 'nameReceiver',
       key: 'nameReceiver',
     },
-    {
-      align: 'center',
-      width: '10%',
-      title: 'Nhà cung cấp',
-      dataIndex: 'createDate',
-      key: 'createDate',
-      render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
-    },
+    // {
+    //   align: 'center',
+    //   width: '10%',
+    //   title: 'Nhà cung cấp',
+    //   dataIndex: 'createDate',
+    //   key: 'createDate',
+    //   render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
+    // },
     {
       width: '10%',
       align: 'center',
@@ -250,19 +263,13 @@ export default function Warehouse() {
       render: (id, record) => (
         <div className='flex items-center gap-x-4 justify-center'>
           <Icon size={18} title='Chi tiết đơn nhập' className='cursor-pointer' icon={'info'} onClick={() => orderDetail(record)} />
+          <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => exportExcel(id)} />
         </div>
       ),
     },
   ];
 
   const columns: any = [
-    {
-      width: '5%',
-      align: 'center',
-      title: 'ID',
-      dataIndex: 'idProduct',
-      key: 'idProduct',
-    },
     {
       width: '10%',
       align: 'center',
@@ -284,10 +291,21 @@ export default function Warehouse() {
     {
       width: '10%',
       align: 'center',
-      title: 'Giá nhập (VNĐ)',
+      title: 'Giá bán (VNĐ)',
       dataIndex: 'price',
       key: 'price',
       render: utils.formatCurrency,
+      // render: (saleReceiptList, record) => (
+      //   <div>
+      //     <del className='mr-4'>{utils.formatCurrency(record.price)}</del>
+      //     {utils.formatCurrency(
+      //       new BigNumber(record.price)
+      //         .times(100 - saleReceiptList.rankDiscount)
+      //         .div(100)
+      //         .toNumber()
+      //     )}
+      //   </div>
+      // ),
     },
     {
       width: '10%',
@@ -301,9 +319,9 @@ export default function Warehouse() {
       width: '10%',
       align: 'center',
       title: 'Thành tiền (VNĐ)',
-      dataIndex: 'total',
-      key: 'total',
-      render: utils.formatCurrency,
+      dataIndex: 'saleReceiptList',
+      key: 'saleReceiptList',
+      render: (saleReceiptList, record) => utils.formatCurrency(_active === '1' ? record.total : saleReceiptList.totalAfterSale),
     },
   ];
 
@@ -321,6 +339,7 @@ export default function Warehouse() {
 
   const orderDetail = (record) => {
     detailOpen();
+    setId(record.id);
     getDataDetail(record.id);
   };
 
@@ -350,6 +369,10 @@ export default function Warehouse() {
   const handleCancelWarehouse = () => {
     _form.resetFields();
     warehoseClose();
+  };
+
+  const renderDiscount = () => {
+    return new BigNumber(_detail.receipt?.total).times(_detail.receipt?.rankDiscount).div(100).toNumber();
   };
 
   const items: TabsProps['items'] = [
@@ -448,25 +471,55 @@ export default function Warehouse() {
         width={800}
         footer={null}
         onOk={handleAcceptWarehouse}
-        title={_active === '1' ? 'Chi tiết phiếu nhập' : 'Chi tiết phiếu xuất'}
+        title={_active === '1' ? 'Chi tiết phiếu nhập' : `Chi tiết phiếu xuất ${_id}`}
         onCancel={() => {
           setDetail([]);
           detailClose();
         }}
         open={detailIsOpen}
+        bodyStyle={{
+          padding: 10,
+          textAlign: 'right',
+        }}
       >
         <Table
           bordered
           rowKey={'id'}
-          dataSource={_detail}
+          dataSource={_detail.data}
           columns={columns}
           pagination={{
             pageSize: DEFAULT_SMALL_PAGE_SIZE,
             hideOnSinglePage: true,
           }}
         />
+        {_active === '2' && (
+          <div className='inline-grid grid-cols-auto gap-x-4 gap-y-2 text-gray-800 text-right items-center mt-4'>
+            <div className=''>Tổng tiền hàng:</div>
+            <span className='text-base'>{utils.formatCurrency(_detail.receipt?.total)} VNĐ</span>
+            <div className=''>Phí vận chuyển:</div>
+            <span className='text-base'>{utils.formatCurrency(_detail.receipt?.feeShipping)} VNĐ</span>
+            {_detail.receipt?.rankDiscount > 0 && (
+              <>
+                <div>Giảm giá {`( -${_detail.receipt?.rankDiscount}%)`}</div>
+                <span className='text-black text-base'>- {utils.formatCurrency(renderDiscount())} VNĐ</span>
+              </>
+            )}
+            <div className=''>Tổng thanh toán: </div>
+            <div>
+              <span className='text-2xl text-primary'>{utils.formatCurrency(_detail.receipt?.totalAfterSale)}</span> VNĐ
+            </div>
+          </div>
+        )}
       </Modal>
-      <AddOrderEntryForm id={_id} provider={_provider} detail={_detail} getDataWarehouse={getData} isOpen={isOpen} close={close} isEdit={_isEdit} />
+      <AddOrderEntryForm
+        id={_id}
+        provider={_provider}
+        detail={_detail.data}
+        getDataWarehouse={getData}
+        isOpen={isOpen}
+        close={close}
+        isEdit={_isEdit}
+      />
     </>
   );
 }

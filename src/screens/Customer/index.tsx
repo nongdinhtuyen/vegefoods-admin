@@ -1,14 +1,17 @@
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Switch, Table } from 'antd';
-import BigNumber from 'bignumber.js';
+// import Receipt from './Receipt';
+import { LoadingOutlined } from '@ant-design/icons';
+import { Button, Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
-import CustomImage from 'components/CustomImage';
 import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
-import React, { useEffect, useState } from 'react';
-import { MdOutlineMap } from 'react-icons/all';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AiOutlinePrinter, IoReceiptOutline, MdOutlineMap } from 'react-icons/all';
+import { useNavigate } from 'react-router-dom';
+import ReactToPrint, { useReactToPrint } from 'react-to-print';
 import actions from 'redux/actions/customer';
+import receiptActions from 'redux/actions/receipt';
 import { useAppDispatch, useAppSelector } from 'redux/store';
 import { useImmer } from 'use-immer';
 
@@ -32,7 +35,9 @@ type CustomerType = {
 
 export default function Customer() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { isOpen, close, open } = useToggle();
+  const { isOpen: isPrint, close: printClose, open: printOpen } = useToggle();
   const [_form] = Form.useForm();
   const [_customerStatics, setCustomerStatics] = useState<any>({});
   const [_customer, setCustomer] = useImmer<CustomerType>({
@@ -40,7 +45,62 @@ export default function Customer() {
     current: 1,
     total: 0,
   });
+  const [_receipt, setReceipt] = useImmer({
+    id: 0,
+    data: [],
+  });
   const [_address, setAddres] = useState<any>([]);
+  const componentRef = useRef(null);
+
+  const onBeforeGetContentResolve = useRef<any>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState('old boring text');
+
+  const handleAfterPrint = useCallback(() => {
+    console.log('`onAfterPrint` called'); // tslint:disable-line no-console
+  }, []);
+
+  const handleBeforePrint = useCallback(() => {
+    console.log('`onBeforePrint` called'); // tslint:disable-line no-console
+  }, []);
+
+  const handleOnBeforeGetContent = useCallback(() => {
+    console.log('`onBeforeGetContent` called'); // tslint:disable-line no-console
+    setLoading(true);
+    printOpen();
+    setText('Loading new text...');
+
+    return new Promise((resolve) => {
+      onBeforeGetContentResolve.current = resolve;
+
+      setTimeout(() => {
+        setLoading(false);
+        printClose();
+        setText('New, Updated Text!');
+        resolve(true);
+      }, 0);
+    });
+  }, [setLoading, setText]);
+
+  const reactToPrintContent = useCallback(() => {
+    return componentRef.current;
+  }, [componentRef.current]);
+
+  const handlePrint = useReactToPrint({
+    content: reactToPrintContent,
+    documentTitle: 'AwesomeFileName',
+    onBeforeGetContent: handleOnBeforeGetContent,
+    onBeforePrint: handleBeforePrint,
+    onAfterPrint: handleAfterPrint,
+    removeAfterPrint: true,
+  });
+
+  useEffect(() => {
+    if (text === 'New, Updated Text!' && typeof onBeforeGetContentResolve.current === 'function') {
+      onBeforeGetContentResolve.current();
+    }
+  }, [onBeforeGetContentResolve.current, text]);
 
   const getData = ({ current = _customer.current } = {}) => {
     dispatch(
@@ -137,7 +197,7 @@ export default function Customer() {
       key: 'email',
     },
     {
-      width: '10%',
+      width: '5%',
       align: 'center',
       title: 'Giới tính',
       dataIndex: 'sex',
@@ -145,7 +205,7 @@ export default function Customer() {
       render: (sex) => gender[sex],
     },
     {
-      width: '10%',
+      width: '5%',
       align: 'center',
       title: 'Phân hạng',
       dataIndex: 'rankList',
@@ -163,7 +223,15 @@ export default function Customer() {
     {
       width: '10%',
       align: 'center',
-      title: 'Trạng thái',
+      title: 'Thời gian tạo',
+      dataIndex: 'createDate',
+      key: 'createDate',
+      render: (createDate) => utils.formatTimeFromUnix(createDate, 'DD/MM/YYYY HH:mm:ss'),
+    },
+    {
+      width: '10%',
+      align: 'center',
+      title: 'Trạng thái hoạt động',
       dataIndex: 'status',
       key: 'status',
       render: (status, record) => <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />,
@@ -174,7 +242,13 @@ export default function Customer() {
       title: 'Hành động',
       dataIndex: 'id',
       key: 'id',
-      render: (id) => <MdOutlineMap size={18} title='Sổ người nhận' className='cursor-pointer' onClick={() => openAddress(id)} />,
+      render: (id) => (
+        <div className='flex items-center gap-x-4'>
+          <MdOutlineMap size={20} title='Sổ người nhận' className='cursor-pointer' onClick={() => openAddress(id)} />
+          <IoReceiptOutline size={20} title='Sổ người nhận' className='cursor-pointer' onClick={() => openReceipt(id)} />
+          {/* <AiOutlinePrinter size={20} title='In hóa đơn' className='cursor-pointer' onClick={() => printReceipt(id)} /> */}
+        </div>
+      ),
       // render: (id) => <Icon size={18} title='Sổ người nhận' className='cursor-pointer' icon={'info'} onClick={() => openAddress(id)} />,
     },
   ];
@@ -203,6 +277,33 @@ export default function Customer() {
     },
   ];
 
+  const openReceipt = (id) => {
+    navigate(`/${id}`, { state: { id } });
+  };
+
+  const getBillById = ({ id = _receipt.id } = {}) => {
+    setReceipt((draft) => {
+      draft.id = id;
+    });
+    dispatch(
+      receiptActions.actionGetReceipt({
+        params: { uid: id, typeStatus: -1 },
+        callbacks: {
+          onSuccess({ data, total }) {
+            handlePrint();
+            setReceipt((draft) => {
+              draft.data = data;
+            });
+          },
+        },
+      })
+    );
+  };
+
+  const printReceipt = (id) => {
+    getBillById({ id });
+  };
+
   const openAddress = (id) => {
     open();
     dispatch(
@@ -212,7 +313,6 @@ export default function Customer() {
         },
         callbacks: {
           onSuccess({ data }) {
-            console.log('🚀 ~ file: index.tsx:218 ~ onSuccess ~ data:', data);
             setAddres(data);
           },
         },
@@ -245,6 +345,13 @@ export default function Customer() {
       <Modal width={800} footer={null} title='Danh sách địa chỉ người dùng' onCancel={close} open={isOpen}>
         <Table bordered rowKey={'id'} dataSource={_address} columns={columnsAddress} pagination={{ hideOnSinglePage: true }} />
       </Modal>
+      <Modal width={400} closable={false} open={isPrint} footer={null} onCancel={printClose}>
+        <div className='p-10 text-center text-2xl'>
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 40 }} />} />
+          <div className='mt-5'>Đang chờ in hóa đơn</div>
+        </div>
+      </Modal>
+      {/* <Receipt ref={componentRef} listReceipt={_receipt.data} /> */}
     </>
   );
 }

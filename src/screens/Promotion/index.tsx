@@ -1,4 +1,5 @@
 import { Avatar, Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Switch, Table, Tag } from 'antd';
+import Item from 'antd/es/list/Item';
 import BigNumber from 'bignumber.js';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
@@ -38,7 +39,8 @@ export default function Promotion() {
     total: 0,
   });
   const [_product, setProduct] = useState();
-  const [_id, setId] = useState('');
+  const [_item, setItem] = useState<any>({});
+  const [_id, setId] = useState(0);
 
   const getData = ({ current = _data.current } = {}) => {
     dispatch(
@@ -235,7 +237,7 @@ export default function Promotion() {
         type='primary'
         onClick={() => {
           open();
-          setId('');
+          setId(0);
         }}
         className='mb-3'
       >
@@ -269,6 +271,7 @@ export default function Promotion() {
             <Select
               showSearch
               className='w-full'
+              onChange={(value, option: any) => setItem(option.item)}
               filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
               options={_.map(_product, (item: any) => ({
                 label: (
@@ -283,29 +286,53 @@ export default function Promotion() {
                 name: item.name || '',
                 img: item.img || '',
                 value: item.id,
+                item,
               }))}
             />
           </Form.Item>
-          <Form.Item className='!flex-1' label='Thời gian hiệu lực' name='time'>
-            <DatePicker.RangePicker
-              className='w-full'
-              showTime={{ format: 'HH:mm:ss' }}
-              format='DD/MM/YYYY HH:mm:ss'
-              disabledDate={(current) => current && current < dayjs().startOf('day')}
-            />
+          <Form.Item shouldUpdate noStyle>
+            {() => (
+              <Form.Item shouldUpdate className='!flex-1' label='Thời gian hiệu lực' name='time' rules={[{ required: true }]}>
+                <DatePicker.RangePicker
+                  disabled={!_form.getFieldValue('productId')}
+                  className='w-full'
+                  showTime={{ format: 'HH:mm:ss' }}
+                  format='DD/MM/YYYY HH:mm:ss'
+                  disabledDate={(current) => current && current < dayjs().startOf('day')}
+                />
+              </Form.Item>
+            )}
           </Form.Item>
           <Form.Item hidden name='isActive'>
             <Switch />
           </Form.Item>
-          <Form.Item className='!flex-1' label='Giá' name='price'>
-            <InputNumber
-              formatter={(value: any) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
-              addonAfter='VNĐ'
-              min={0}
-              controls={false}
-              className='w-full'
-            />
+          <Form.Item shouldUpdate noStyle>
+            {({ getFieldValue }) => (
+              <Form.Item
+                className='!flex-1'
+                label='Giá'
+                name='price'
+                rules={[
+                  {
+                    validator(rule, value, callback) {
+                      if (value > _item.price) {
+                        return Promise.reject(`Giá khuyến mãi không được lớn hơn ${utils.formatCurrency(_item.price)} VNĐ`);
+                      }
+                    },
+                  },
+                ]}
+              >
+                <InputNumber
+                  disabled={!_form.getFieldValue('productId')}
+                  formatter={(value: any) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+                  addonAfter='VNĐ'
+                  min={0}
+                  controls={false}
+                  className='w-full'
+                />
+              </Form.Item>
+            )}
           </Form.Item>
         </Form>
       </Modal>
