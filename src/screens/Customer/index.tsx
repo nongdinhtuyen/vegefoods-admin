@@ -3,6 +3,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -50,57 +51,6 @@ export default function Customer() {
     data: [],
   });
   const [_address, setAddres] = useState<any>([]);
-  const componentRef = useRef(null);
-
-  const onBeforeGetContentResolve = useRef<any>(null);
-
-  const [loading, setLoading] = useState(false);
-  const [text, setText] = useState('old boring text');
-
-  const handleAfterPrint = useCallback(() => {
-    console.log('`onAfterPrint` called'); // tslint:disable-line no-console
-  }, []);
-
-  const handleBeforePrint = useCallback(() => {
-    console.log('`onBeforePrint` called'); // tslint:disable-line no-console
-  }, []);
-
-  const handleOnBeforeGetContent = useCallback(() => {
-    console.log('`onBeforeGetContent` called'); // tslint:disable-line no-console
-    setLoading(true);
-    printOpen();
-    setText('Loading new text...');
-
-    return new Promise((resolve) => {
-      onBeforeGetContentResolve.current = resolve;
-
-      setTimeout(() => {
-        setLoading(false);
-        printClose();
-        setText('New, Updated Text!');
-        resolve(true);
-      }, 0);
-    });
-  }, [setLoading, setText]);
-
-  const reactToPrintContent = useCallback(() => {
-    return componentRef.current;
-  }, [componentRef.current]);
-
-  const handlePrint = useReactToPrint({
-    content: reactToPrintContent,
-    documentTitle: 'AwesomeFileName',
-    onBeforeGetContent: handleOnBeforeGetContent,
-    onBeforePrint: handleBeforePrint,
-    onAfterPrint: handleAfterPrint,
-    removeAfterPrint: true,
-  });
-
-  useEffect(() => {
-    if (text === 'New, Updated Text!' && typeof onBeforeGetContentResolve.current === 'function') {
-      onBeforeGetContentResolve.current();
-    }
-  }, [onBeforeGetContentResolve.current, text]);
 
   const getData = ({ current = _customer.current } = {}) => {
     dispatch(
@@ -234,7 +184,11 @@ export default function Customer() {
       title: 'Trạng thái hoạt động',
       dataIndex: 'status',
       key: 'status',
-      render: (status, record) => <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />,
+      render: (status, record) => (
+        <DisplayControl path='customer/:id' action='post' render={status === 1 ? 'Chưa kích hoạt' : 'Đã kích hoạt'}>
+          <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />
+        </DisplayControl>
+      ),
     },
     {
       width: '5%',
@@ -290,7 +244,6 @@ export default function Customer() {
         params: { uid: id, typeStatus: -1 },
         callbacks: {
           onSuccess({ data, total }) {
-            handlePrint();
             setReceipt((draft) => {
               draft.data = data;
             });

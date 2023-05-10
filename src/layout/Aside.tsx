@@ -5,6 +5,7 @@ import { ItemType } from 'antd/es/menu/hooks/useItems';
 import React, { ReactNode, useContext, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAppSelector } from 'redux/store';
 import styled from 'styled-components';
 
 import _ from 'lodash';
@@ -37,12 +38,14 @@ type RouteType = {
   path: string;
   permissions?: any[];
   children?: any;
+  auth: string;
 };
 
 export default function Aside() {
   const [_currentKey, setCurrentKey] = useState<string>('/');
   const { collapsed } = useContext(LayoutContext);
   const location = useLocation();
+  const { admin_auth } = useAppSelector((state) => state.accountReducer);
 
   function getItem(key: string, label: ReactNode, icon: ReactNode, children = null): ItemType[] | any {
     return { key, icon, children, label };
@@ -75,12 +78,15 @@ export default function Aside() {
     const route = _.find(routes, (item) => location.pathname === '/' + item.path);
     setCurrentKey(route?.path || '');
   }, []);
-  const items: ItemType[] | any = _.map(routes, (route: RouteType): any => {
-    if (route.children) {
-      return getItem(route.key, route.title, route.icon, renderChild(route.children));
-    }
-    return getItem(route.key, renderLabel(route.title, route.path), route.icon);
-  });
+  const items: ItemType[] | any = _.chain(routes)
+    .filter((route) => _.includes(_.keys(admin_auth).toString(), route.auth))
+    .map((route: RouteType): any => {
+      if (route.children) {
+        return getItem(route.key, route.title, route.icon, renderChild(route.children));
+      }
+      return getItem(route.key, renderLabel(route.title, route.path), route.icon);
+    })
+    .value();
   return (
     <SiderWrapper theme={'light'} width={270} trigger={null} collapsed={collapsed} collapsible>
       <div className='text'>VEGEFOODS</div>

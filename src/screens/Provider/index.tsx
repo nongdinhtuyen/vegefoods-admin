@@ -2,6 +2,7 @@ import ProductsOffered from './ProductsOffered';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Avatar, Button, Form, Input, InputNumber, Modal, Select, Space, Table } from 'antd';
 import utils from 'common/utils';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_LARGE_PAGE_SIZE, DEFAULT_PAGE_SIZE, WAIT_TIME_DEBOUNCE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -125,8 +126,12 @@ export default function Provider() {
       render: (id, record) => (
         <div className='flex items-center gap-x-4 justify-center'>
           <img title='Sản phẩm cung cấp' className='cursor-pointer' onClick={() => productOffer(record)} src='/images/product.svg' />
-          <Icon title='Sửa nhà cung cấp' size={22} className='cursor-pointer' icon={'edit'} onClick={() => updateProvider(record)} />
-          <Icon title='Xóa nhà cung cấp' size={22} className='cursor-pointer' icon={'delete'} onClick={() => showConfirm(id)} />
+          <DisplayControl path='provider/product/:id' action='post'>
+            <Icon title='Sửa nhà cung cấp' size={22} className='cursor-pointer' icon={'edit'} onClick={() => updateProvider(record)} />
+          </DisplayControl>
+          <DisplayControl path='provider/:id' action='delete'>
+            <Icon title='Xóa nhà cung cấp' size={22} className='cursor-pointer' icon={'delete'} onClick={() => showConfirm(id)} />
+          </DisplayControl>
         </div>
       ),
     },
@@ -267,9 +272,11 @@ export default function Provider() {
           />
           <Input className='w-96' onChange={handleSearchName} placeholder='Tên nhà cung cấp' />
         </Space>
-        <Button type='primary' onClick={open}>
-          Thêm nhà cung cấp
-        </Button>
+        <DisplayControl path='provider' action='post'>
+          <Button type='primary' onClick={open}>
+            Thêm nhà cung cấp
+          </Button>
+        </DisplayControl>
       </div>
       <ProductsOffered close={closeOffer} isOpen={isOpenOffer} id={_id} />
       <Modal width={560} title={_isUpdate ? 'Sửa nhà cung cấp' : 'Thêm nhà cung cấp'} open={isOpen} onOk={handleOk} onCancel={handleCancel}>

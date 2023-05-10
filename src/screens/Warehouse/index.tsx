@@ -8,6 +8,7 @@ import { BASEURL } from 'bootstrap';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
@@ -193,8 +194,12 @@ export default function Warehouse() {
       render: (id, record) => (
         <div className='flex items-center gap-x-4 justify-center'>
           <Icon size={18} className='cursor-pointer' title='Chi tiết' icon={'info'} onClick={() => orderDetail(record)} />
-          <AiOutlineEdit size={18} className='cursor-pointer' title='Sửa phiếu nhập' onClick={() => handleEdit(record)} />
-          <Icon size={22} className='cursor-pointer' title='Xác nhận đã thanh toán' icon={'update-status'} onClick={() => acceptWarehouse(id)} />
+          <DisplayControl path='warehouse/import/:id' action='put'>
+            <AiOutlineEdit size={18} className='cursor-pointer' title='Sửa phiếu nhập' onClick={() => handleEdit(record)} />
+          </DisplayControl>
+          <DisplayControl path='warehouse/import/:id' action='post'>
+            <Icon size={22} className='cursor-pointer' title='Xác nhận đã thanh toán' icon={'update-status'} onClick={() => acceptWarehouse(id)} />
+          </DisplayControl>
           <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => importExcel(id)} />
         </div>
       ),
@@ -447,16 +452,18 @@ export default function Warehouse() {
               disabledDate={(current) => current && current > dayjs().endOf('day')}
               onChange={handleDate}
             />
-            <Button
-              type='primary'
-              className='ml-4'
-              onClick={() => {
-                open();
-                setIsEdit(false);
-              }}
-            >
-              Thêm phiếu nhập
-            </Button>
+            <DisplayControl path='warehouse/import' action='post'>
+              <Button
+                type='primary'
+                className='ml-4'
+                onClick={() => {
+                  open();
+                  setIsEdit(false);
+                }}
+              >
+                Thêm phiếu nhập
+              </Button>
+            </DisplayControl>
           </>
         }
       />

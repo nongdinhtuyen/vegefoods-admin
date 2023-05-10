@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
@@ -31,6 +32,7 @@ const layout = {
 
 export default function Admin() {
   const dispatch = useAppDispatch();
+  const { profile } = useAppSelector((state) => state.accountReducer);
   const { isOpen, close, open } = useToggle();
   const [_form] = Form.useForm();
   const [_data, setData] = useImmer({
@@ -54,6 +56,26 @@ export default function Admin() {
               draft.data = data;
               draft.total = total;
             });
+          },
+        },
+      })
+    );
+  };
+
+  const activeAdmin = (id, active) => {
+    dispatch(
+      actions.actionUpdateAdminStatus({
+        params: {
+          id,
+          status: active,
+        },
+        callbacks: {
+          onSuccess({ data, total }) {
+            openNotification({
+              description: 'Cập nhập trạng thái người admin thành công',
+              type: 'success',
+            });
+            getData();
           },
         },
       })
@@ -121,52 +143,56 @@ export default function Admin() {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => (status === 0 ? 'Đang hoạt động' : 'Chưa kích hoạt'),
-      // render: (status, record) => <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />,
+      // render: (status) => (status === 0 ? 'Đang hoạt động' : 'Chưa kích hoạt'),
+      render: (status, record) => (
+        <DisplayControl path='account/:id/status' action='put' render={status === 1 ? 'Chưa kích hoạt' : 'Đã kích hoạt'}>
+          <Switch checked={status === 0} onChange={(checked) => activeAdmin(record.id, checked ? 0 : 1)} />
+        </DisplayControl>
+      ),
     },
     {
       width: '10%',
       align: 'center',
       title: 'Hành động',
-      dataIndex: 'action',
-      key: 'action',
-      render: (_, record) => (
-        <Icon
-          size={22}
-          title='Sửa dơn hàng'
-          className='cursor-pointer'
-          onClick={() => {
-            open();
-            setId(record.id);
-            _form.setFieldsValue({
-              ...record,
-              time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
-            });
-          }}
-          icon={'edit'}
-        />
-      ),
+      dataIndex: 'id',
+      key: 'id',
+      render: (id, record) =>
+        profile.id == id && (
+          <DisplayControl action='put' path='account/:id'>
+            <Icon
+              size={22}
+              title='Sửa dơn hàng'
+              className='cursor-pointer'
+              onClick={() => {
+                open();
+                setId(record.id);
+                _form.setFieldsValue({
+                  ...record,
+                  time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
+                });
+              }}
+              icon={'edit'}
+            />
+          </DisplayControl>
+        ),
     },
   ];
 
   const handleOk = () => {
+    const action = _id ? 'actionUpdateAdminInfo' : 'actionCreateAdmin';
     _form
       .validateFields()
       .then((values) => {
-        const [startDate, endDate] = [dayjs(values.time[0]).unix(), dayjs(values.time[1]).unix()];
-        const action = _id ? 'actionUpdatePromotion' : 'actionCreatePromotion';
         dispatch(
           actions[action]({
             params: {
               ...values,
-              startDate,
-              endDate,
               id: _id,
             },
             callbacks: {
               onSuccess(data) {
                 openNotification({
-                  description: _id ? 'Sửa khuyến mại cho sản phẩm thành công' : 'Thêm khuyến mại cho sản phẩm thành công',
+                  description: _id ? 'Sửa admin thành công' : 'Thêm admin thành công',
                   type: 'success',
                 });
                 getData();
@@ -182,10 +208,22 @@ export default function Admin() {
   const handleClose = () => {
     _form.resetFields();
     close();
+    setId('');
   };
 
   return (
     <div className='text-right'>
+      <DisplayControl action='post' path='account'>
+        <Button
+          className='mb-3'
+          onClick={() => {
+            open();
+          }}
+          type='primary'
+        >
+          Thêm quản trị viên
+        </Button>
+      </DisplayControl>
       <Table
         bordered
         rowKey={'id'}
@@ -200,7 +238,7 @@ export default function Admin() {
           hideOnSinglePage: true,
         }}
       />
-      <Modal width={700} onOk={() => handleOk()} title={'Cập nhật thông tin'} onCancel={handleClose} open={isOpen}>
+      <Modal width={600} onOk={handleOk} title={`${_id ? 'Cập nhật thông tin admin' : 'Thêm mới admin'}`} onCancel={handleClose} open={isOpen}>
         <Form {...layout} name='basic' className='m-auto' form={_form}>
           <Form.Item
             name='userName'
@@ -212,7 +250,7 @@ export default function Admin() {
               },
             ]}
           >
-            <Input disabled />
+            <Input />
           </Form.Item>
           <Form.Item
             label='Email'
@@ -224,11 +262,11 @@ export default function Admin() {
               },
             ]}
           >
-            <Input placeholder='Email' />
+            <Input />
           </Form.Item>
           <Form.Item
             name='name'
-            label='Tên'
+            label='Họ và tên'
             rules={[
               {
                 required: true,
@@ -236,7 +274,7 @@ export default function Admin() {
               },
             ]}
           >
-            <Input placeholder='Họ và tên' />
+            <Input />
           </Form.Item>
           <Form.Item
             label='Giới tính'
@@ -249,7 +287,6 @@ export default function Admin() {
             name='sex'
           >
             <Select
-              placeholder='Giới tính'
               className='text-left'
               options={[
                 { value: 0, label: 'Nam' },
@@ -285,7 +322,7 @@ export default function Admin() {
               },
             ]}
           >
-            <Input placeholder='Địa chỉ' />
+            <Input />
           </Form.Item>
         </Form>
       </Modal>

@@ -7,12 +7,16 @@ import _ from 'lodash';
 
 export interface IAccountState {
   profile: any;
+  auth: any;
   isLogin: boolean;
+  admin_auth: any;
 }
 
 const initialState: IAccountState = {
   profile: {},
+  auth: {},
   isLogin: false,
+  admin_auth: {},
 };
 
 const accountReducer = createReducer(initialState, (builder) => {
@@ -25,8 +29,23 @@ const accountReducer = createReducer(initialState, (builder) => {
     state.isLogin = false;
   });
   builder.addCase(createActionTypeOnSuccess(actions.actionGetUserInfo), (state, { payload }: any) => {
-    console.log('🚀 ~ file: account_reducer.ts:30 ~ builder.addCase ~ payload:', payload);
     state.profile = payload.data;
+  });
+  builder.addCase(createActionTypeOnSuccess(actions.actionGetAuth), (state, { payload }: any) => {
+    let admin_auth: any = [];
+    const newAuth = _.map(state.profile.typeAdmin, (value) => payload.data[value]);
+    console.log('🚀 ~ file: account_reducer.ts:37 ~ builder.addCase ~ newAuth:', newAuth);
+    // const data = state.profile.typeAdmin[0] === 0 ? payload.data : newAuth;
+    admin_auth = _.chain(newAuth)
+      // .values()
+      .reduce((obj, val) => {
+        _.mergeWith(obj, val, (objValue, srcValue) => (objValue ? [...new Set(srcValue.concat(objValue))] : srcValue));
+        return obj;
+      }, {})
+      .value();
+
+    state.auth = payload.data;
+    state.admin_auth = admin_auth;
   });
 });
 

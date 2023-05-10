@@ -2,6 +2,7 @@ import { AutoComplete, Avatar, Button, Form, Input, InputNumber, Modal, Select, 
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import { EditableCell, EditableRow } from 'components/EditContextCustom';
 import consts, { DEFAULT_LARGE_PAGE_SIZE, DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import { WAIT_TIME_DEBOUNCE } from 'consts';
@@ -231,7 +232,20 @@ export default function ProductsOffered({ isOpen, close, id }) {
   };
 
   return (
-    <Modal width={880} title={'Sản phẩm cung cấp'} open={isOpen} onOk={handleOk} onCancel={handleCancel} className='top-10'>
+    <Modal
+      footer={[
+        null,
+        <DisplayControl path='provider/:id' action='put'>
+          <Button>Xác nhận</Button>
+        </DisplayControl>,
+      ]}
+      width={880}
+      title={'Sản phẩm cung cấp'}
+      open={isOpen}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      className='top-10'
+    >
       <Form labelWrap layout='inline' className='my-4' labelAlign='left' form={_form} name='add' initialValues={{ price: 0 }}>
         <Form.Item className='!flex-1' label='Sản phẩm' name='id'>
           <Select

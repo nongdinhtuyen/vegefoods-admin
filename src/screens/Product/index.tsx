@@ -3,6 +3,7 @@ import UpdateProduct from './UpdateProduct';
 import { Button, Input, Modal, Select, Space, Table } from 'antd';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -143,17 +144,19 @@ export default function Category() {
               setItem(record);
             }}
           />
-          <Icon
-            size={22}
-            title='Sửa sản phẩm'
-            className='cursor-pointer'
-            onClick={() => {
-              openUpdate();
-              setIsCreate(false);
-              setItem(record);
-            }}
-            icon={'edit'}
-          />
+          <DisplayControl path={'product/:id'} action='put'>
+            <Icon
+              size={22}
+              title='Sửa sản phẩm'
+              className='cursor-pointer'
+              onClick={() => {
+                openUpdate();
+                setIsCreate(false);
+                setItem(record);
+              }}
+              icon={'edit'}
+            />
+          </DisplayControl>
         </div>
       ),
     },
@@ -182,14 +185,12 @@ export default function Category() {
             maxTagCount='responsive'
             filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
             options={[
-              // { label: 'Tất cả', value: -1 },
               ..._.map(productType, (item: any) => ({
                 value: item.id,
                 label: item.name,
               })),
             ]}
             value={_productType}
-            // className='w-52'
             onChange={(value: any) => {
               setProductType(value);
               getData({
@@ -199,34 +200,12 @@ export default function Category() {
             }}
           />
           <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' />
-          {/* <Input.Search onChange={(e) => setSearch(e.target.value)} className='w-80' onSearch={handleSearch} placeholder='Tìm kiếm' /> */}
-          {/* <Select
-            className='w-36'
-            options={[
-              ..._.map(
-                [
-                  { label: 'Tất cả', value: -1 },
-                  { label: 'Còn hàng', value: 1 },
-                  { label: 'Hết hàng', value: 0 },
-                ],
-                (item: any) => ({
-                  ...item,
-                })
-              ),
-            ]}
-            value={_remain}
-            onChange={(value: any) => {
-              setRemain(value);
-              getData({
-                remain: value,
-                current: 1,
-              });
-            }}
-          /> */}
         </Space>
-        <Button type='primary' onClick={handleCreate}>
-          Thêm sản phẩm
-        </Button>
+        <DisplayControl path={'product'} action='post'>
+          <Button type='primary' onClick={handleCreate}>
+            Thêm sản phẩm
+          </Button>
+        </DisplayControl>
       </div>
       <Table
         bordered

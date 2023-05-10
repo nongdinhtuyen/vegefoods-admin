@@ -29,9 +29,10 @@ export function* saveMasterData(id) {
   // const resp = yield call((params) => rf.getRequest('AccountRequest').getUserInfo(params), id);
   yield put(createActionTypeOnSuccess(LOGIN)());
   // yield put(cartActions.actionGetCart({}));
-  yield put(initActions.actionInitSucceed({}));
+  yield put(accountActions.actionGetAuth({}));
   yield put(productActions.actionGetProductType({ params: { current: 0, count: 100 } }));
   yield put(createActionTypeOnSuccess(accountActions.actionGetUserInfo)({ data: utils.getSessionJSON() }));
+  yield put(initActions.actionInitSucceed({}));
 }
 
 function* watchInit() {

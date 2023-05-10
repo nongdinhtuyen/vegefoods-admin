@@ -3,6 +3,7 @@ import UpdateBill from './UpdateBill';
 import { Form, Input, Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -74,7 +75,6 @@ export default function Bills() {
   };
 
   useEffect(() => {
-    console.log('🚀 ~ file: index.tsx:74 ~ useEffect ~ location.state:', location.state?.id);
     if (location.state?.id) {
       getData({ uid: location.state?.id });
     } else {
@@ -136,86 +136,101 @@ export default function Bills() {
       <div className='flex flex-wrap gap-x-4 gap-y-1 items-center justify-center'>
         {Salereceipt?.status === 0 && (
           <>
-            <Icon
-              title='Phê duyệt đơn hàng'
-              size={22}
-              className={handleClassName(Salereceipt)}
-              onClick={() => handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công')}
-              icon={'accept'}
-            />
-
-            <Icon
-              size={22}
-              title='Sửa đơn hàng'
-              onClick={() => {
-                openReceipt();
-                setId(Salereceipt.id);
-                setUpdateItem(Infosalereceipt);
-              }}
-              className={handleClassName(Salereceipt)}
-              icon={'edit'}
-            />
-            <Icon
-              title='Hủy đơn hàng'
-              size={22}
-              className={handleClassName(Salereceipt)}
-              onClick={() => {
-                handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
-                setItem(record);
-              }}
-              icon={'cancel'}
-            />
+            <DisplayControl path='receipt/order' action='post'>
+              <Icon
+                title='Phê duyệt đơn hàng'
+                size={22}
+                className={handleClassName(Salereceipt)}
+                onClick={() => handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công')}
+                icon={'accept'}
+              />
+            </DisplayControl>
+            <DisplayControl path='receipt/order/:id' action='post'>
+              <Icon
+                size={22}
+                title='Sửa đơn hàng'
+                onClick={() => {
+                  openReceipt();
+                  setId(Salereceipt.id);
+                  setUpdateItem(Infosalereceipt);
+                }}
+                className={handleClassName(Salereceipt)}
+                icon={'edit'}
+              />
+            </DisplayControl>
+            <DisplayControl path='receipt/order' action='post'>
+              <Icon
+                title='Hủy đơn hàng'
+                size={22}
+                className={handleClassName(Salereceipt)}
+                onClick={() => {
+                  handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
+                  setItem(record);
+                }}
+                icon={'cancel'}
+              />
+            </DisplayControl>
           </>
         )}
         {Salereceipt?.status === 1 && (
-          <Icon
-            title='Yêu cầu xuất kho'
-            size={22}
-            className='cursor-pointer'
-            onClick={() => handleFinancial(Salereceipt?.id, 2, 'Yêu cầu xuất kho thành công')}
-            icon={'tag'}
-          />
+          <DisplayControl path='receipt/financial' action='post'>
+            <Icon
+              title='Yêu cầu xuất kho'
+              size={22}
+              className='cursor-pointer'
+              onClick={() => handleFinancial(Salereceipt?.id, 2, 'Yêu cầu xuất kho thành công')}
+              icon={'tag'}
+            />
+          </DisplayControl>
         )}
         {Salereceipt?.status === 2 && (
-          <Icon
-            title='Xác nhận xuất kho'
-            size={30}
-            className='cursor-pointer'
-            onClick={() => handleWarehouse(Salereceipt, 3, 'Xác nhận xuất kho')}
-            icon={'ship'}
-          />
+          <DisplayControl path='receipt/warehouse' action='post'>
+            <Icon
+              title='Xác nhận xuất kho'
+              size={30}
+              className='cursor-pointer'
+              onClick={() => handleWarehouse(Salereceipt, 3, 'Xác nhận xuất kho')}
+              icon={'ship'}
+            />
+          </DisplayControl>
         )}
         {Salereceipt?.status === 5 && (
-          <Icon
-            title='Xác nhận hủy'
-            size={30}
-            className='cursor-pointer'
-            onClick={() => {
-              setItem(record);
-              handleWarehouse(Salereceipt, 3, 'Hủy đơn hàng thành công');
-            }}
-            icon={'waiting-cancel'}
-          />
+          <DisplayControl path='receipt/warehouse' action='post'>
+            <Icon
+              title='Xác nhận hủy'
+              size={30}
+              className='cursor-pointer'
+              onClick={() => {
+                setItem(record);
+                handleWarehouse(Salereceipt, 3, 'Hủy đơn hàng thành công');
+              }}
+              icon={'waiting-cancel'}
+            />
+          </DisplayControl>
         )}
         {Salereceipt?.status === 3 && (
           <>
-            <img
-              title='Giao hàng thành công'
-              height={23}
-              className='cursor-pointer'
-              onClick={() => handleWarehouse(Salereceipt, 4, 'Xác nhận giao hàng thành công')}
-              src='/images/accept_file.svg'
-            />
-            <img
-              title='Giao hàng thất bại'
-              height={23}
-              className='cursor-pointer'
-              onClick={() => {
-                handleWarehouse(Salereceipt, 6, 'Xác nhận giao hàng thất bại');
-                setItem(record);
-              }}
-              src='/images/cancel_file.svg'
-            />
+            <DisplayControl path='receipt/warehouse' action='post'>
+              <img
+                title='Giao hàng thành công'
+                height={23}
+                className='cursor-pointer'
+                onClick={() => handleWarehouse(Salereceipt, 4, 'Xác nhận giao hàng thành công')}
+                src='/images/accept_file.svg'
+              />
+            </DisplayControl>
+            <DisplayControl path='receipt/warehouse' action='post'>
+              <img
+                title='Giao hàng thất bại'
+                height={23}
+                className='cursor-pointer'
+                onClick={() => {
+                  handleWarehouse(Salereceipt, 6, 'Xác nhận giao hàng thất bại');
+                  setItem(record);
+                }}
+                src='/images/cancel_file.svg'
+              />
+            </DisplayControl>
           </>
         )}
         {Salereceipt?.status === 4 && (

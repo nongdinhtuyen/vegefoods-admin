@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
@@ -157,18 +158,20 @@ export default function Promotion() {
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive, record) => (
-        <Switch
-          checked={isActive}
-          onChange={(checked) => {
-            _form.setFieldsValue({
-              ...record,
-              isActive: checked,
-              time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
-            });
-            setId(record.id);
-            handleOk();
-          }}
-        />
+        <DisplayControl action='put' path='promotion/:id' render={!isActive ? 'Chưa kích hoạt' : 'Đã kích hoạt'}>
+          <Switch
+            checked={isActive}
+            onChange={(checked) => {
+              _form.setFieldsValue({
+                ...record,
+                isActive: checked,
+                time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
+              });
+              setId(record.id);
+              handleOk();
+            }}
+          />
+        </DisplayControl>
       ),
     },
     {
@@ -178,20 +181,22 @@ export default function Promotion() {
       dataIndex: 'action',
       key: 'action',
       render: (_, record) => (
-        <Icon
-          size={22}
-          title='Sửa dơn hàng'
-          className='cursor-pointer'
-          onClick={() => {
-            open();
-            setId(record.id);
-            _form.setFieldsValue({
-              ...record,
-              time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
-            });
-          }}
-          icon={'edit'}
-        />
+        <DisplayControl action='put' path='promotion/:id'>
+          <Icon
+            size={22}
+            title='Sửa dơn hàng'
+            className='cursor-pointer'
+            onClick={() => {
+              open();
+              setId(record.id);
+              _form.setFieldsValue({
+                ...record,
+                time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
+              });
+            }}
+            icon={'edit'}
+          />
+        </DisplayControl>
       ),
     },
   ];
@@ -233,16 +238,18 @@ export default function Promotion() {
 
   return (
     <div className='text-right'>
-      <Button
-        type='primary'
-        onClick={() => {
-          open();
-          setId(0);
-        }}
-        className='mb-3'
-      >
-        Thêm khuyến mại
-      </Button>
+      <DisplayControl action='post' path='promotion'>
+        <Button
+          type='primary'
+          onClick={() => {
+            open();
+            setId(0);
+          }}
+          className='mb-3'
+        >
+          Thêm khuyến mại
+        </Button>
+      </DisplayControl>
       <Table
         bordered
         rowKey={'id'}

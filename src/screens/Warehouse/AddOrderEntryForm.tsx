@@ -78,8 +78,6 @@ const AddOrderEntryForm = ({ detail, id, provider, isOpen, close, getDataWarehou
   };
 
   const handleOk = () => {
-    console.log('🚀 ~ file: AddOrderEntryForm.tsx:100 ~ .then ~ _id:', id);
-
     const action = isEdit ? 'actionUpdateImportWarehouse' : 'actionCreateImportWarehouse';
 
     _form

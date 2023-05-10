@@ -4,6 +4,7 @@ import { Button, Form, Input, Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -53,18 +54,20 @@ export default function ProductType() {
       dataIndex: 'action',
       key: 'action',
       render: (_, record) => (
-        <Icon
-          size={22}
-          title='Cập nhật danh mục'
-          className='cursor-pointer'
-          onClick={() => {
-            open();
-            setIsCreate(false);
-            setItem(record);
-            _form.setFieldValue('name', record.name);
-          }}
-          icon={'edit'}
-        />
+        <DisplayControl path='product/product-type' action='post'>
+          <Icon
+            size={22}
+            title='Cập nhật danh mục'
+            className='cursor-pointer'
+            onClick={() => {
+              open();
+              setIsCreate(false);
+              setItem(record);
+              _form.setFieldValue('name', record.name);
+            }}
+            icon={'edit'}
+          />
+        </DisplayControl>
       ),
     },
   ];
@@ -106,9 +109,11 @@ export default function ProductType() {
   return (
     <>
       <div className='text-right mb-2'>
-        <Button type='primary' onClick={handleAdd}>
-          Thêm danh mục
-        </Button>
+        <DisplayControl path='product' action='post'>
+          <Button type='primary' onClick={handleAdd}>
+            Thêm danh mục
+          </Button>
+        </DisplayControl>
       </div>
       <Table
         bordered

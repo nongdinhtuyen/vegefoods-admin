@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
+import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_SMALL_PAGE_SIZE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
@@ -90,20 +91,22 @@ export default function Rank() {
       dataIndex: 'products',
       key: 'action',
       render: (products, record) => (
-        <Icon
-          size={22}
-          title='Sửa phân hạng'
-          className='cursor-pointer'
-          onClick={() => {
-            open();
-            setDetail(record);
-            _form.setFieldsValue({
-              total: record.totalSpend,
-              discount: record.discount,
-            });
-          }}
-          icon={'edit'}
-        />
+        <DisplayControl path='rank/:id' action='post'>
+          <Icon
+            size={22}
+            title='Sửa phân hạng'
+            className='cursor-pointer'
+            onClick={() => {
+              open();
+              setDetail(record);
+              _form.setFieldsValue({
+                total: record.totalSpend,
+                discount: record.discount,
+              });
+            }}
+            icon={'edit'}
+          />
+        </DisplayControl>
       ),
     },
   ];
