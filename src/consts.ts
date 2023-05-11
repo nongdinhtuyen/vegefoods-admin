@@ -47,6 +47,12 @@ const consts = {
     0: 'Chưa thanh toán',
     1: 'Đã thanh toán',
   },
+
+  gender: {
+    0: 'Nam',
+    1: 'Nữ',
+    2: 'Khác',
+  },
 };
 
 export default consts;

@@ -10,7 +10,18 @@ import {
   TbLayoutList,
 } from 'react-icons/all';
 
-const routes = [
+type RouteType = {
+  title: string;
+  icon: React.ReactNode;
+  key: string;
+  path: string;
+  permissions?: any[];
+  children?: any;
+  auth?: string;
+  isHidden?: boolean;
+};
+
+const routes: RouteType[] = [
   {
     title: 'HÓA ĐƠN BÁN HÀNG',
     icon: <CiMoneyBill size={24} />,
@@ -73,6 +84,20 @@ const routes = [
     key: 'admin',
     path: 'admin',
     auth: 'account',
+  },
+  {
+    title: 'Hóa đơn',
+    icon: <IoPricetagsOutline size={22} />,
+    key: '/:id',
+    path: '/:id',
+    isHidden: true,
+  },
+  {
+    title: 'Thông tin cá nhân',
+    icon: <MdOutlineAdminPanelSettings size={22} />,
+    key: 'profile',
+    path: 'profile',
+    isHidden: true,
   },
 ];
 

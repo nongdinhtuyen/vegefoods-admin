@@ -31,21 +31,11 @@ const SiderWrapper = styled(Sider)`
   }
 `;
 
-type RouteType = {
-  title: string;
-  icon: ReactNode;
-  key: string;
-  path: string;
-  permissions?: any[];
-  children?: any;
-  auth: string;
-};
-
 export default function Aside() {
-  const [_currentKey, setCurrentKey] = useState<string>('/');
+  const [_currentKey, setCurrentKey] = useState<string[]>(['/']);
   const { collapsed } = useContext(LayoutContext);
   const location = useLocation();
-  const { admin_auth } = useAppSelector((state) => state.accountReducer);
+  const { adminAuth, isAdmin } = useAppSelector((state) => state.accountReducer);
 
   function getItem(key: string, label: ReactNode, icon: ReactNode, children = null): ItemType[] | any {
     return { key, icon, children, label };
@@ -72,15 +62,18 @@ export default function Aside() {
   };
 
   const onClick: MenuProps['onClick'] = (e) => {
-    setCurrentKey(e.key);
+    setCurrentKey([e.key]);
   };
   useLayoutEffect(() => {
-    const route = _.find(routes, (item) => location.pathname === '/' + item.path);
-    setCurrentKey(route?.path || '');
-  }, []);
-  const items: ItemType[] | any = _.chain(routes)
-    .filter((route) => _.includes(_.keys(admin_auth).toString(), route.auth))
-    .map((route: RouteType): any => {
+    const route = _.find(routes, (item) => {
+      return location.pathname === '/' + item.path;
+    });
+    setCurrentKey(route?.path ? [route?.path] : []);
+  }, [location]);
+  const checkRoutes = _.filter(routes, (route) => _.includes(_.keys(adminAuth).toString(), route.auth));
+  const items: ItemType[] | any = _.chain(isAdmin ? routes : checkRoutes)
+    .filter((route) => !route.isHidden)
+    .map((route) => {
       if (route.children) {
         return getItem(route.key, route.title, route.icon, renderChild(route.children));
       }
@@ -90,7 +83,7 @@ export default function Aside() {
   return (
     <SiderWrapper theme={'light'} width={270} trigger={null} collapsed={collapsed} collapsible>
       <div className='text'>VEGEFOODS</div>
-      <Menu onClick={onClick} selectedKeys={[_currentKey]} mode='inline' items={items} />
+      <Menu onClick={onClick} selectedKeys={_currentKey} mode='inline' items={items} />
     </SiderWrapper>
   );
 }

@@ -1,8 +1,10 @@
 import { BASEURL } from '../../bootstrap';
 import rf from '../../requests/RequestFactory';
 import {
+  ADD_ROLE_FOR_ADMIN,
   CREATE_ADMIN,
   GET_ACCOUNT,
+  GET_ADMIN_BY_ID,
   GET_AUTH,
   GET_USER_INFO,
   LOGIN,
@@ -108,6 +110,34 @@ function* createAccount(action) {
   );
 }
 
+function* getAdminById(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const resp = yield call((params) => rf.getRequest('AccountRequest').getAdminById(params), params);
+        return resp;
+      },
+      key: GET_ADMIN_BY_ID,
+    },
+    callbacks
+  );
+}
+
+function* addRoleForAdmin(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const resp = yield call((params) => rf.getRequest('AccountRequest').addRoleForAdmin(params), params);
+        return resp;
+      },
+      key: ADD_ROLE_FOR_ADMIN,
+    },
+    callbacks
+  );
+}
+
 function* watchAccount() {
   yield takeLatest(LOGIN, login);
   yield takeLatest(GET_ACCOUNT, getAccount);
@@ -115,6 +145,8 @@ function* watchAccount() {
   yield takeLatest(UPDATE_ADMIN_INFO, updateAdminInfo);
   yield takeLatest(GET_AUTH, getAuth);
   yield takeLatest(CREATE_ADMIN, createAccount);
+  yield takeLatest(GET_ADMIN_BY_ID, getAdminById);
+  yield takeLatest(ADD_ROLE_FOR_ADMIN, addRoleForAdmin);
 }
 
 export default function* rootSaga() {

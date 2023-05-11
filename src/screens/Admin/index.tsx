@@ -1,4 +1,4 @@
-import { Avatar, Button, DatePicker, Form, Input, InputNumber, Modal, Select, Space, Switch, Table } from 'antd';
+import { Avatar, Button, Checkbox, Col, DatePicker, Form, Input, InputNumber, Modal, Row, Select, Space, Switch, Table } from 'antd';
 import BigNumber from 'bignumber.js';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
@@ -9,21 +9,12 @@ import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
+import { GrUserAdmin } from 'react-icons/all';
 import actions from 'redux/actions/account';
 import { useAppDispatch, useAppSelector } from 'redux/store';
 import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
-
-const MALE = 0,
-  FEMALE = 1,
-  OTHER = 2;
-
-const gender = {
-  [MALE]: 'Nam',
-  [FEMALE]: 'Nữ',
-  [OTHER]: 'Khác',
-};
 
 const layout = {
   labelCol: { span: 6 },
@@ -34,13 +25,14 @@ export default function Admin() {
   const dispatch = useAppDispatch();
   const { profile } = useAppSelector((state) => state.accountReducer);
   const { isOpen, close, open } = useToggle();
+  const { isOpen: isOpenRole, close: closeRole, open: openRole } = useToggle();
   const [_form] = Form.useForm();
   const [_data, setData] = useImmer({
     current: 1,
     data: [],
     total: 0,
   });
-  const [_product, setProduct] = useState();
+  const [_role, setRole] = useState([]);
   const [_id, setId] = useState('');
 
   const getData = ({ current = _data.current } = {}) => {
@@ -76,6 +68,27 @@ export default function Admin() {
               type: 'success',
             });
             getData();
+          },
+        },
+      })
+    );
+  };
+
+  const addRoleForAdmin = () => {
+    dispatch(
+      actions.actionAddRoleForAdmin({
+        params: {
+          id: _id,
+          id_roles: _role,
+        },
+        callbacks: {
+          onSuccess({ data, total }) {
+            openNotification({
+              description: 'Cập nhập quyền quản trị thành công',
+              type: 'success',
+            });
+            getData();
+            handleCloseRole();
           },
         },
       })
@@ -121,7 +134,7 @@ export default function Admin() {
       title: 'Giới tính',
       dataIndex: 'sex',
       key: 'sex',
-      render: (sex) => gender[sex],
+      render: (sex) => consts.gender[sex],
     },
     {
       width: '10%',
@@ -145,7 +158,7 @@ export default function Admin() {
       key: 'status',
       // render: (status) => (status === 0 ? 'Đang hoạt động' : 'Chưa kích hoạt'),
       render: (status, record) => (
-        <DisplayControl path='account/:id/status' action='put' render={status === 1 ? 'Chưa kích hoạt' : 'Đã kích hoạt'}>
+        <DisplayControl path='account/:id/status' action='put' render={status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
           <Switch checked={status === 0} onChange={(checked) => activeAdmin(record.id, checked ? 0 : 1)} />
         </DisplayControl>
       ),
@@ -156,25 +169,40 @@ export default function Admin() {
       title: 'Hành động',
       dataIndex: 'id',
       key: 'id',
-      render: (id, record) =>
-        profile.id == id && (
-          <DisplayControl action='put' path='account/:id'>
-            <Icon
+      render: (id, record) => (
+        <div className='flex gap-x-4 justify-center items-center'>
+          {profile.id == id && (
+            <DisplayControl action='put' path='account/:id'>
+              <Icon
+                size={22}
+                title='Sửa dơn hàng'
+                className='cursor-pointer'
+                onClick={() => {
+                  open();
+                  setId(record.id);
+                  _form.setFieldsValue({
+                    ...record,
+                    time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
+                  });
+                }}
+                icon={'edit'}
+              />
+            </DisplayControl>
+          )}
+          <DisplayControl action='post' path='account/:id/role'>
+            <GrUserAdmin
               size={22}
-              title='Sửa dơn hàng'
+              title='Sửa quyền quản trị'
               className='cursor-pointer'
               onClick={() => {
-                open();
+                openRole();
                 setId(record.id);
-                _form.setFieldsValue({
-                  ...record,
-                  time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
-                });
+                setRole(record.typeAdmin);
               }}
-              icon={'edit'}
             />
           </DisplayControl>
-        ),
+        </div>
+      ),
     },
   ];
 
@@ -208,6 +236,19 @@ export default function Admin() {
   const handleClose = () => {
     _form.resetFields();
     close();
+    setId('');
+  };
+
+  const onChangeRole = (checkedValues) => {
+    setRole(checkedValues);
+  };
+
+  const handleOkRole = () => {
+    addRoleForAdmin();
+  };
+
+  const handleCloseRole = () => {
+    closeRole();
     setId('');
   };
 
@@ -325,6 +366,21 @@ export default function Admin() {
             <Input />
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal width={400} onOk={handleOkRole} title='Sửa quyền quản trị' onCancel={handleCloseRole} open={isOpenRole}>
+        <Checkbox.Group className='flex-col' value={_role} onChange={onChangeRole}>
+          <Row gutter={[0, 10]}>
+            <Col span={24}>
+              <Checkbox value={1}>Bộ phận Tiếp nhận đơn hàng</Checkbox>
+            </Col>
+            <Col span={24}>
+              <Checkbox value={2}>Bộ phận Tài chính kế toán</Checkbox>
+            </Col>
+            <Col span={24}>
+              <Checkbox value={3}>Bộ phận xuất nhập kho</Checkbox>
+            </Col>
+          </Row>
+        </Checkbox.Group>
       </Modal>
     </div>
   );

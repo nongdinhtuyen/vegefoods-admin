@@ -9,14 +9,16 @@ export interface IAccountState {
   profile: any;
   auth: any;
   isLogin: boolean;
-  admin_auth: any;
+  adminAuth: any;
+  isAdmin: boolean;
 }
 
 const initialState: IAccountState = {
   profile: {},
   auth: {},
   isLogin: false,
-  admin_auth: {},
+  isAdmin: false,
+  adminAuth: {},
 };
 
 const accountReducer = createReducer(initialState, (builder) => {
@@ -32,20 +34,19 @@ const accountReducer = createReducer(initialState, (builder) => {
     state.profile = payload.data;
   });
   builder.addCase(createActionTypeOnSuccess(actions.actionGetAuth), (state, { payload }: any) => {
-    let admin_auth: any = [];
+    let adminAuth: any = [];
     const newAuth = _.map(state.profile.typeAdmin, (value) => payload.data[value]);
-    console.log('🚀 ~ file: account_reducer.ts:37 ~ builder.addCase ~ newAuth:', newAuth);
     // const data = state.profile.typeAdmin[0] === 0 ? payload.data : newAuth;
-    admin_auth = _.chain(newAuth)
+    adminAuth = _.chain(newAuth)
       // .values()
       .reduce((obj, val) => {
         _.mergeWith(obj, val, (objValue, srcValue) => (objValue ? [...new Set(srcValue.concat(objValue))] : srcValue));
         return obj;
       }, {})
       .value();
-
+    state.isAdmin = _.includes(state.profile.typeAdmin, 0);
     state.auth = payload.data;
-    state.admin_auth = admin_auth;
+    state.adminAuth = adminAuth;
   });
 });
 

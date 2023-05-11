@@ -7,20 +7,20 @@ type Props = {
   children: JSX.Element;
   path: string;
   action: string;
-  render?: any;
+  render?: React.ReactNode;
 };
 
 export default function DisplayControl({ children, path, action, render }: Props): null | JSX.Element {
-  const { admin_auth, profile } = useAppSelector((state) => state.accountReducer);
-  if (_.includes(profile.typeAdmin, 0)) {
+  const { adminAuth, profile, isAdmin } = useAppSelector((state) => state.accountReducer);
+  if (isAdmin) {
     return children;
   }
-  const getAuth = admin_auth[`/v1/orderfood/admin/${path}`];
+  const getAuth = adminAuth[`/v1/orderfood/admin/${path}`];
   if (getAuth && _.includes(_.values(getAuth), action.toUpperCase())) {
     return children;
   }
   if (render) {
-    return render;
+    return <>{render}</>;
   }
   return null;
 }

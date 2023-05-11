@@ -158,7 +158,7 @@ export default function Promotion() {
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive, record) => (
-        <DisplayControl action='put' path='promotion/:id' render={!isActive ? 'Chưa kích hoạt' : 'Đã kích hoạt'}>
+        <DisplayControl action='put' path='promotion/:id' render={!isActive ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
           <Switch
             checked={isActive}
             onChange={(checked) => {

@@ -10,6 +10,7 @@ import Customer from 'screens/Customer';
 import Login from 'screens/Login';
 import Product from 'screens/Product';
 import ProductType from 'screens/ProductType';
+import Profile from 'screens/Profile';
 import Promotion from 'screens/Promotion';
 import Provider from 'screens/Provider';
 import Rank from 'screens/Rank';
@@ -63,6 +64,7 @@ function App() {
           <Route path='customer' element={<Customer />} />
           <Route path='promotion' element={<Promotion />} />
           <Route path='admin' element={<Admin />} />
+          <Route path='profile' element={<Profile />} />
         </Route>
         <Route
           path='/login'

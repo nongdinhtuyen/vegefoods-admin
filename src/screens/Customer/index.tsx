@@ -18,16 +18,6 @@ import { useImmer } from 'use-immer';
 
 import _ from 'lodash';
 
-const MALE = 0,
-  FEMALE = 1,
-  OTHER = 2;
-
-const gender = {
-  [MALE]: 'Nam',
-  [FEMALE]: 'Nữ',
-  [OTHER]: 'Khác',
-};
-
 type CustomerType = {
   data: any[];
   current: number;
@@ -152,7 +142,7 @@ export default function Customer() {
       title: 'Giới tính',
       dataIndex: 'sex',
       key: 'sex',
-      render: (sex) => gender[sex],
+      render: (sex) => consts.gender[sex],
     },
     {
       width: '5%',
@@ -185,7 +175,7 @@ export default function Customer() {
       dataIndex: 'status',
       key: 'status',
       render: (status, record) => (
-        <DisplayControl path='customer/:id' action='post' render={status === 1 ? 'Chưa kích hoạt' : 'Đã kích hoạt'}>
+        <DisplayControl path='customer/:id' action='post' render={status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
           <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />
         </DisplayControl>
       ),

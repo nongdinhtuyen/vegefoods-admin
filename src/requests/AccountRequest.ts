@@ -26,4 +26,12 @@ export default class AccountRequest extends BaseRequest {
     const url = `${prefix}/${params.id}/status?status=${params.status}`;
     return this.put(url);
   }
+  getAdminById(params) {
+    const url = `${prefix}/${params.id}`;
+    return this.get(url);
+  }
+  addRoleForAdmin(params) {
+    const url = `${prefix}/${params.id}/role`;
+    return this.post(url, params);
+  }
 }
