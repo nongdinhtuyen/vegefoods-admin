@@ -23,7 +23,7 @@ const layout = {
 
 export default function Admin() {
   const dispatch = useAppDispatch();
-  const { profile } = useAppSelector((state) => state.accountReducer);
+  const { profile, isSuperAdmin } = useAppSelector((state) => state.accountReducer);
   const { isOpen, close, open } = useToggle();
   const { isOpen: isOpenRole, close: closeRole, open: openRole } = useToggle();
   const [_form] = Form.useForm();
@@ -44,8 +44,11 @@ export default function Admin() {
         },
         callbacks: {
           onSuccess({ data, total }) {
+            const newData: any = _.map(data.admins, (item) => {
+              return { ...item, typeAdmin: data.mapRole[item.id] };
+            });
             setData((draft) => {
-              draft.data = data;
+              draft.data = newData;
               draft.total = total;
             });
           },
@@ -115,11 +118,24 @@ export default function Admin() {
       key: 'userName',
     },
     {
-      width: '10%',
+      width: '5%',
       align: 'center',
       title: 'Tên',
       dataIndex: 'name',
       key: 'name',
+    },
+    {
+      width: '15%',
+      align: 'center',
+      title: 'Quyền hạn',
+      dataIndex: 'typeAdmin',
+      key: 'typeAdmin',
+      render: (typeAdmin) => {
+        if (_.includes(typeAdmin, 0)) {
+          return consts.role[0];
+        }
+        return _.map(typeAdmin, (item) => <div>{consts.role[item]}</div>);
+      },
     },
     {
       width: '10%',
@@ -151,7 +167,7 @@ export default function Admin() {
       key: 'email',
     },
     {
-      width: '10%',
+      width: '5%',
       align: 'center',
       title: 'Trạng thái',
       dataIndex: 'status',
@@ -371,13 +387,16 @@ export default function Admin() {
         <Checkbox.Group className='flex-col' value={_role} onChange={onChangeRole}>
           <Row gutter={[0, 10]}>
             <Col span={24}>
-              <Checkbox value={1}>Bộ phận Tiếp nhận đơn hàng</Checkbox>
+              <Checkbox value={0}>{consts.role['0']}</Checkbox>
             </Col>
             <Col span={24}>
-              <Checkbox value={2}>Bộ phận Tài chính kế toán</Checkbox>
+              <Checkbox value={1}>{consts.role['1']}</Checkbox>
             </Col>
             <Col span={24}>
-              <Checkbox value={3}>Bộ phận xuất nhập kho</Checkbox>
+              <Checkbox value={2}>{consts.role['2']}</Checkbox>
+            </Col>
+            <Col span={24}>
+              <Checkbox value={3}>{consts.role['3']}</Checkbox>
             </Col>
           </Row>
         </Checkbox.Group>

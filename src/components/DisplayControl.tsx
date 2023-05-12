@@ -11,8 +11,8 @@ type Props = {
 };
 
 export default function DisplayControl({ children, path, action, render }: Props): null | JSX.Element {
-  const { adminAuth, profile, isAdmin } = useAppSelector((state) => state.accountReducer);
-  if (isAdmin) {
+  const { adminAuth, profile, isSuperAdmin } = useAppSelector((state) => state.accountReducer);
+  if (isSuperAdmin) {
     return children;
   }
   const getAuth = adminAuth[`/v1/orderfood/admin/${path}`];

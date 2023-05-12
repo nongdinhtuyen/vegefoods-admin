@@ -10,14 +10,14 @@ export interface IAccountState {
   auth: any;
   isLogin: boolean;
   adminAuth: any;
-  isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
 const initialState: IAccountState = {
   profile: {},
   auth: {},
   isLogin: false,
-  isAdmin: false,
+  isSuperAdmin: false,
   adminAuth: {},
 };
 
@@ -44,7 +44,7 @@ const accountReducer = createReducer(initialState, (builder) => {
         return obj;
       }, {})
       .value();
-    state.isAdmin = _.includes(state.profile.typeAdmin, 0);
+    state.isSuperAdmin = _.includes(state.profile.typeAdmin, 0);
     state.auth = payload.data;
     state.adminAuth = adminAuth;
   });

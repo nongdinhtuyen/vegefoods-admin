@@ -53,6 +53,13 @@ const consts = {
     1: 'Nữ',
     2: 'Khác',
   },
+
+  role: {
+    0: 'Super Admin',
+    1: 'Bộ phận Tiếp nhận đơn hàng',
+    2: 'Bộ phận Tài chính kế toán',
+    3: 'Bộ phận xuất nhập kho',
+  },
 };
 
 export default consts;

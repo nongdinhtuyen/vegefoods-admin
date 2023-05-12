@@ -35,7 +35,7 @@ export default function Aside() {
   const [_currentKey, setCurrentKey] = useState<string[]>(['/']);
   const { collapsed } = useContext(LayoutContext);
   const location = useLocation();
-  const { adminAuth, isAdmin } = useAppSelector((state) => state.accountReducer);
+  const { adminAuth, isSuperAdmin } = useAppSelector((state) => state.accountReducer);
 
   function getItem(key: string, label: ReactNode, icon: ReactNode, children = null): ItemType[] | any {
     return { key, icon, children, label };
@@ -71,7 +71,7 @@ export default function Aside() {
     setCurrentKey(route?.path ? [route?.path] : []);
   }, [location]);
   const checkRoutes = _.filter(routes, (route) => _.includes(_.keys(adminAuth).toString(), route.auth));
-  const items: ItemType[] | any = _.chain(isAdmin ? routes : checkRoutes)
+  const items: ItemType[] | any = _.chain(isSuperAdmin ? routes : checkRoutes)
     .filter((route) => !route.isHidden)
     .map((route) => {
       if (route.children) {
