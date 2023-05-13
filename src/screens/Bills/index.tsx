@@ -1,14 +1,15 @@
 import PrintBill from './Print';
 import UpdateBill from './UpdateBill';
-import { Form, Input, Modal, Select, Space, Table } from 'antd';
+import { Button, DatePicker, Form, Input, Modal, Select, Space, Table } from 'antd';
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_PAGE_SIZE } from 'consts';
+import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
-import { IoReceiptOutline } from 'react-icons/all';
+import { IoReceiptOutline, RiFileExcel2Line } from 'react-icons/all';
 import { useLocation } from 'react-router-dom';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
@@ -47,12 +48,14 @@ export default function Bills() {
   const { open, close, isOpen } = useToggle();
   const { open: openReject, close: closeReject, isOpen: isOpenReject } = useToggle();
   const { open: openReceipt, close: closeReceipt, isOpen: isOpenReceipt } = useToggle();
+  const { open: openExcel, close: closeExcel, isOpen: isOpenExcel } = useToggle();
   const [_item, setItem] = useState<any>({});
   const [_id, setId] = useState(0);
   const [_updateItem, setUpdateItem] = useState({});
   const [_form] = Form.useForm();
   const [_printData, setPrintData] = useState({});
   const { open: openPrint, close: closePrint, isOpen: isPrint } = useToggle();
+  const [_time, setTime] = useState([dayjs().startOf('day'), dayjs().endOf('day')]);
 
   const getData = ({ current = _receipt.current, typeStatus = _receipt.typeStatus, uid = _receipt.uid } = {}) => {
     setReceipt((draft) => {
@@ -236,6 +239,7 @@ export default function Bills() {
         {Salereceipt?.status === 4 && (
           <IoReceiptOutline size={24} title='Sổ người nhận' className='cursor-pointer' onClick={() => printReceipt(record)} />
         )}
+        {/* <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => downloadExcel(record)} /> */}
       </div>
     );
   };
@@ -338,25 +342,40 @@ export default function Bills() {
     openPrint();
   };
 
+  const handleDownloadExcel = (time) => {
+    setTime(time);
+  };
+
+  const handleCloseExcel = () => {
+    closeExcel();
+  };
+
+  const handleOkExcel = () => {
+    utils.downloadExcel(`/receipt/sale-receipt`, { from: dayjs(_time[0]).unix(), to: dayjs(_time[1]).unix() });
+  };
+
   return (
     <ReceiptWrapper>
-      <Select
-        options={[
-          { label: 'Tất cả', value: '-1' },
-          ..._.map(consts.PRODUCT_STATUS_STRING, (value, key) => ({
-            value: key,
-            label: value,
-          })),
-        ]}
-        value={_receipt.typeStatus}
-        className='mb-3 w-52'
-        onSelect={(value: any) => {
-          setReceipt((draft) => {
-            draft.typeStatus = value;
-          });
-          getData({ typeStatus: value, current: 1 });
-        }}
-      />
+      <div className='flex justify-between'>
+        <Select
+          options={[
+            { label: 'Tất cả', value: '-1' },
+            ..._.map(consts.PRODUCT_STATUS_STRING, (value, key) => ({
+              value: key,
+              label: value,
+            })),
+          ]}
+          value={_receipt.typeStatus}
+          className='mb-3 w-52'
+          onSelect={(value: any) => {
+            setReceipt((draft) => {
+              draft.typeStatus = value;
+            });
+            getData({ typeStatus: value, current: 1 });
+          }}
+        />
+        <Button onClick={openExcel}>Thống kê đơn hàng</Button>
+      </div>
       <Table
         bordered
         dataSource={_receipt.data}
@@ -413,6 +432,24 @@ export default function Bills() {
       <div className='hidden'>
         <PrintBill data={_printData} open={openPrint} close={closePrint} isOpen={isPrint} />
       </div>
+      <Modal
+        title={<div className='text-2xl text-center'>Thống kê đơn hàng</div>}
+        onCancel={handleCloseExcel}
+        onOk={handleOkExcel}
+        open={isOpenExcel}
+        okText='Xác nhận'
+        cancelText='Hủy'
+        className='top-10'
+      >
+        <DatePicker.RangePicker
+          className='w-full'
+          showTime={{ format: 'HH:mm:ss' }}
+          format='DD/MM/YYYY HH:mm:ss'
+          disabledDate={(current) => current && current > dayjs().endOf('day')}
+          value={[_time[0], _time[1]]}
+          onChange={handleDownloadExcel}
+        />
+      </Modal>
     </ReceiptWrapper>
   );
 }

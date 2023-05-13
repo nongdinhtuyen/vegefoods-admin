@@ -68,7 +68,7 @@ export default function Aside() {
     const route = _.find(routes, (item) => {
       return location.pathname === '/' + item.path;
     });
-    setCurrentKey(route?.path ? [route?.path] : []);
+    setCurrentKey(route ? [route?.path] : []);
   }, [location]);
   const checkRoutes = _.filter(routes, (route) => _.includes(_.keys(adminAuth).toString(), route.auth));
   const items: ItemType[] | any = _.chain(isSuperAdmin ? routes : checkRoutes)

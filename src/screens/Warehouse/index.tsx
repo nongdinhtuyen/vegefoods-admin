@@ -100,25 +100,27 @@ export default function Warehouse() {
   }, []);
 
   const importExcel = async (id) => {
-    const response = await window.axios.get(`/warehouse/import/excel/${id}`, { params: {}, responseType: 'blob' });
-    const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', 'import.xlsx'); //any other extension
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    utils.downloadExcel(`/warehouse/import/excel/${id}`);
+    // const response = await window.axios.get(`/warehouse/import/excel/${id}`, { params: {}, responseType: 'blob' });
+    // const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+    // const link = document.createElement('a');
+    // link.href = downloadUrl;
+    // link.setAttribute('download', 'import.xlsx'); //any other extension
+    // document.body.appendChild(link);
+    // link.click();
+    // link.remove();
   };
 
   const exportExcel = async (id) => {
-    const response = await window.axios.get(`/warehouse/export/excel/${id}`, { params: {}, responseType: 'blob' });
-    const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', 'import.xlsx'); //any other extension
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    utils.downloadExcel(`/warehouse/export/excel/${id}`);
+    // const response = await window.axios.get(`/warehouse/export/excel/${id}`, { params: {}, responseType: 'blob' });
+    // const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+    // const link = document.createElement('a');
+    // link.href = downloadUrl;
+    // link.setAttribute('download', 'import.xlsx'); //any other extension
+    // document.body.appendChild(link);
+    // link.click();
+    // link.remove();
   };
 
   const importColumns: any = [
