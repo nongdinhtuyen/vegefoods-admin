@@ -88,8 +88,8 @@ const routes: RouteType[] = [
   {
     title: 'Hóa đơn',
     icon: <IoPricetagsOutline size={22} />,
-    key: '/:id',
-    path: '/:id',
+    key: 'receipt',
+    path: 'receipt',
     isHidden: true,
   },
   {

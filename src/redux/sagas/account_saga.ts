@@ -2,6 +2,7 @@ import { BASEURL } from '../../bootstrap';
 import rf from '../../requests/RequestFactory';
 import {
   ADD_ROLE_FOR_ADMIN,
+  CHANGE_PASS,
   CREATE_ADMIN,
   GET_ACCOUNT,
   GET_ADMIN_BY_ID,
@@ -138,6 +139,20 @@ function* addRoleForAdmin(action) {
   );
 }
 
+function* changePass(action) {
+  const { params, callbacks } = action.payload;
+  yield unfoldSaga(
+    {
+      *handler() {
+        const resp = yield call((params) => rf.getRequest('AccountRequest').changePass(params), params);
+        return resp;
+      },
+      key: CHANGE_PASS,
+    },
+    callbacks
+  );
+}
+
 function* watchAccount() {
   yield takeLatest(LOGIN, login);
   yield takeLatest(GET_ACCOUNT, getAccount);
@@ -147,6 +162,7 @@ function* watchAccount() {
   yield takeLatest(CREATE_ADMIN, createAccount);
   yield takeLatest(GET_ADMIN_BY_ID, getAdminById);
   yield takeLatest(ADD_ROLE_FOR_ADMIN, addRoleForAdmin);
+  yield takeLatest(CHANGE_PASS, changePass);
 }
 
 export default function* rootSaga() {

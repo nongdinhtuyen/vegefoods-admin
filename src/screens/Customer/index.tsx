@@ -4,7 +4,7 @@ import { Button, Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, T
 import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import DisplayControl from 'components/DisplayControl';
-import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
+import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE, WAIT_TIME_DEBOUNCE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -22,6 +22,7 @@ type CustomerType = {
   data: any[];
   current: number;
   total: number;
+  arg: string;
 };
 
 export default function Customer() {
@@ -35,6 +36,7 @@ export default function Customer() {
     data: [],
     current: 1,
     total: 0,
+    arg: '',
   });
   const [_receipt, setReceipt] = useImmer({
     id: 0,
@@ -42,13 +44,22 @@ export default function Customer() {
   });
   const [_address, setAddres] = useState<any>([]);
 
-  const getData = ({ current = _customer.current } = {}) => {
+  const getData = ({ current = _customer.current, arg = _customer.arg } = {}) => {
+    setCustomer((draft) => {
+      draft.current = current;
+    });
     dispatch(
       actions.actionGetCustomer({
+        params: {
+          current,
+          count: DEFAULT_SMALL_PAGE_SIZE,
+          arg,
+        },
         callbacks: {
           onSuccess({ data, total }) {
             setCustomer((draft) => {
               draft.data = data;
+              draft.total = total;
             });
           },
         },
@@ -56,10 +67,6 @@ export default function Customer() {
     );
     dispatch(
       actions.actionGetCustomerStatics({
-        params: {
-          current,
-          count: DEFAULT_PAGE_SIZE,
-        },
         callbacks: {
           onSuccess({ data, total }) {
             setCustomerStatics(data);
@@ -104,7 +111,7 @@ export default function Customer() {
     {
       width: '10%',
       align: 'center',
-      title: 'Tên khách hàng',
+      title: 'Họ và tên',
       dataIndex: 'name',
       key: 'name',
     },
@@ -222,7 +229,7 @@ export default function Customer() {
   ];
 
   const openReceipt = (id) => {
-    navigate(`/${id}`, { state: { id } });
+    navigate(`/receipt/${id}`, { state: { id } });
   };
 
   const getBillById = ({ id = _receipt.id } = {}) => {
@@ -263,6 +270,20 @@ export default function Customer() {
     );
   };
 
+  const handleSearch = (e) => {
+    const { value } = e.target;
+    setCustomer((draft) => {
+      draft.arg = value;
+    });
+    getDataDebounce(value);
+  };
+
+  const getDataDebounce = useRef(
+    _.debounce((value) => {
+      getData({ current: 1, arg: value });
+    }, WAIT_TIME_DEBOUNCE)
+  ).current;
+
   return (
     <>
       <div className='flex gap-x-10 items-center m-auto mb-4'>
@@ -284,7 +305,21 @@ export default function Customer() {
           {/* <img title='Sản phẩm cung cấp' width={100} src='/images/group_active.svg' /> */}
         </div>
       </div>
-      <Table bordered rowKey={'id'} dataSource={_customer.data} columns={columns} pagination={{ hideOnSinglePage: true }} />
+      <Input className='w-96 mb-3' value={_customer.arg} onChange={handleSearch} placeholder='Tên đăng nhập, họ và tên hoặc sđt khách hàng' />
+      <Table
+        bordered
+        rowKey={'id'}
+        dataSource={_customer.data}
+        columns={columns}
+        pagination={{
+          onChange: (page) => getData({ current: page }),
+          showSizeChanger: false,
+          current: _customer.current,
+          pageSize: DEFAULT_SMALL_PAGE_SIZE,
+          total: _customer.total,
+          hideOnSinglePage: true,
+        }}
+      />
       <Modal width={800} footer={null} title='Danh sách địa chỉ người dùng' onCancel={close} open={isOpen}>
         <Table bordered rowKey={'id'} dataSource={_address} columns={columnsAddress} pagination={{ hideOnSinglePage: true }} />
       </Modal>

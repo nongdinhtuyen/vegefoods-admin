@@ -26,13 +26,21 @@ function NewHeader() {
   const [_title, setTitle] = useState('');
 
   const handleLogout = () => {
-    dispatch(actions.actionLogout({}));
+    dispatch(
+      actions.actionLogout({
+        callbacks: {
+          onSuccess(data) {
+            window.axios.defaults.headers['apikey'] = '';
+          },
+        },
+      })
+    );
     navigate('/login');
   };
 
   const title = () => {
     const route = _.find(routes, (item) => {
-      return location.pathname === '/' + item.path || item.path === '/:id';
+      return location.pathname === '/' + item.path || location.pathname === `/${item.path}/${location.state?.id}`;
     });
     setTitle(route?.title ?? '');
   };
@@ -43,9 +51,15 @@ function NewHeader() {
 
   const items: MenuProps['items'] = [
     {
-      key: '4',
+      key: '1',
+      // icon: <BiUserCircle size={18} />,
+      icon: <img width={22} src='/images/profile.svg' />,
+      label: <Link to='/profile'>Thông tin cá nhân</Link>,
+    },
+    {
+      key: '2',
       label: <div onClick={handleLogout}>Đăng xuất</div>,
-      icon: <img width={22} src='images/logout.svg' />,
+      icon: <img width={22} src='/images/logout.svg' />,
     },
   ];
 
@@ -55,7 +69,7 @@ function NewHeader() {
       <div className='text uppercase'>{_title}</div>
       <div className='right' id='area'>
         <Dropdown menu={{ items }} placement='bottomRight'>
-          <div className='w-10 text-left flex' onClick={() => navigate('profile')}>
+          <div className='w-10 text-left flex'>
             <Avatar className='text-[#f56a00] bg-[#fde3cf] cursor-pointer'>{profile.name.charAt(0)}</Avatar>
           </div>
         </Dropdown>

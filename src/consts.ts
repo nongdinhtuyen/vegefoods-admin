@@ -56,9 +56,9 @@ const consts = {
 
   role: {
     0: 'Super Admin',
-    1: 'Bộ phận Tiếp nhận đơn hàng',
-    2: 'Bộ phận Tài chính kế toán',
-    3: 'Bộ phận xuất nhập kho',
+    1: 'Tiếp nhận đơn hàng',
+    2: 'Tài chính kế toán',
+    3: 'Xuất nhập kho',
   },
 };
 

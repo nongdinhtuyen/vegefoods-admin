@@ -12,6 +12,7 @@ export const GET_AUTH = 'GET_AUTH';
 export const CREATE_ADMIN = 'CREATE_ADMIN';
 export const GET_ADMIN_BY_ID = 'GET_ADMIN_BY_ID';
 export const ADD_ROLE_FOR_ADMIN = 'ADD_ROLE_FOR_ADMIN';
+export const CHANGE_PASS = 'CHANGE_PASS';
 
 export default {
   actionLogin: createAction<ActionPayloadStandard>(LOGIN),
@@ -26,4 +27,5 @@ export default {
   actionCreateAdmin: createAction<ActionPayloadStandard>(CREATE_ADMIN),
   actionGetAdminById: createAction<ActionPayloadStandard>(GET_ADMIN_BY_ID),
   actionAddRoleForAdmin: createAction<ActionPayloadStandard>(ADD_ROLE_FOR_ADMIN),
+  actionChangePass: createAction<ActionPayloadStandard>(CHANGE_PASS),
 };

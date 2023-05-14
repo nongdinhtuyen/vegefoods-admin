@@ -6,7 +6,7 @@ import DisplayControl from 'components/DisplayControl';
 import consts, { DEFAULT_LARGE_PAGE_SIZE, DEFAULT_PAGE_SIZE, WAIT_TIME_DEBOUNCE } from 'consts';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
-import React, { forwardRef, useCallback, useEffect, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
 import { MdDeleteForever } from 'react-icons/all';
 import PhoneInput, { formatPhoneNumber, isPossiblePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input/input';
 import productActions from 'redux/actions/product';
@@ -51,7 +51,6 @@ export default function Provider() {
     });
     setFilters((draft) => {
       draft.pid = pid;
-      draft.arg = arg;
     });
     dispatch(
       actions.actionGetProvider({
@@ -231,9 +230,22 @@ export default function Provider() {
     getProducts({ current: 1, search: value });
   }, WAIT_TIME_DEBOUNCE);
 
-  const handleSearchName = _.debounce((e) => {
-    getData({ current: 1, arg: e.target.value });
-  }, WAIT_TIME_DEBOUNCE);
+  const handleSearchName = (e) => {
+    const { value } = e.target;
+    setFilters((draft) => {
+      draft.arg = value;
+    });
+    getDataDebounce(value);
+  };
+
+  const getDataDebounce = useRef(
+    _.debounce((value) => {
+      setFilters((draft) => {
+        draft.arg = value;
+      });
+      getData({ current: 1, arg: value });
+    }, WAIT_TIME_DEBOUNCE)
+  ).current;
 
   return (
     <>
@@ -270,7 +282,19 @@ export default function Provider() {
               value: item.id,
             }))}
           />
-          <Input className='w-96' onChange={handleSearchName} placeholder='Tên nhà cung cấp' />
+          <Input
+            className='w-96'
+            value={_filters.arg}
+            onChange={handleSearchName}
+            // onChange={(event) => {
+            //   const { value } = event.target;
+            //   setFilters((draft) => {
+            //     draft.arg = value;
+            //   });
+            //   handleSearchName(event);
+            // }}
+            placeholder='Tên hoặc SĐT nhà cung cấp'
+          />
         </Space>
         <DisplayControl path='provider' action='post'>
           <Button type='primary' onClick={open}>

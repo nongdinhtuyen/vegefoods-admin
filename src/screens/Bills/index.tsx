@@ -236,7 +236,7 @@ export default function Bills() {
             </DisplayControl>
           </>
         )}
-        {Salereceipt?.status === 4 && (
+        {_.includes([2, 4, 5, 3, 6], Salereceipt?.status) && (
           <IoReceiptOutline size={24} title='Sổ người nhận' className='cursor-pointer' onClick={() => printReceipt(record)} />
         )}
         {/* <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => downloadExcel(record)} /> */}

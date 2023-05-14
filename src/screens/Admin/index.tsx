@@ -4,12 +4,13 @@ import { openNotification } from 'common/Notify';
 import utils from 'common/utils';
 import CustomImage from 'components/CustomImage';
 import DisplayControl from 'components/DisplayControl';
-import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE } from 'consts';
+import { profile } from 'console';
+import consts, { DEFAULT_PAGE_SIZE, DEFAULT_SMALL_PAGE_SIZE, WAIT_TIME_DEBOUNCE } from 'consts';
 import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
-import React, { useEffect, useState } from 'react';
-import { GrUserAdmin } from 'react-icons/all';
+import React, { useEffect, useRef, useState } from 'react';
+import { GrUserAdmin, MdPassword } from 'react-icons/all';
 import actions from 'redux/actions/account';
 import { useAppDispatch, useAppSelector } from 'redux/store';
 import { useImmer } from 'use-immer';
@@ -23,24 +24,28 @@ const layout = {
 
 export default function Admin() {
   const dispatch = useAppDispatch();
-  const { profile, isSuperAdmin } = useAppSelector((state) => state.accountReducer);
+  const { isSuperAdmin, profile } = useAppSelector((state) => state.accountReducer);
   const { isOpen, close, open } = useToggle();
   const { isOpen: isOpenRole, close: closeRole, open: openRole } = useToggle();
+  const { isOpen: isOpenPass, close: closePass, open: openPass } = useToggle();
   const [_form] = Form.useForm();
   const [_data, setData] = useImmer({
     current: 1,
     data: [],
     total: 0,
+    arg: '',
   });
-  const [_role, setRole] = useState([]);
+  const [_role, setRole] = useState<number[]>([]);
   const [_id, setId] = useState('');
+  const [_formPass] = Form.useForm();
 
-  const getData = ({ current = _data.current } = {}) => {
+  const getData = ({ current = _data.current, arg = _data.arg } = {}) => {
     dispatch(
       actions.actionGetAccount({
         params: {
           current,
           count: DEFAULT_PAGE_SIZE,
+          arg,
         },
         callbacks: {
           onSuccess({ data, total }) {
@@ -67,7 +72,7 @@ export default function Admin() {
         callbacks: {
           onSuccess({ data, total }) {
             openNotification({
-              description: 'Cập nhập trạng thái người admin thành công',
+              description: 'Chuyển trạng thái tài khoản thành công',
               type: 'success',
             });
             getData();
@@ -118,16 +123,16 @@ export default function Admin() {
       key: 'userName',
     },
     {
-      width: '5%',
+      width: '10%',
       align: 'center',
-      title: 'Tên',
+      title: 'Họ và tên',
       dataIndex: 'name',
       key: 'name',
     },
     {
       width: '15%',
       align: 'center',
-      title: 'Quyền hạn',
+      title: 'Phân quyền',
       dataIndex: 'typeAdmin',
       key: 'typeAdmin',
       render: (typeAdmin) => {
@@ -187,11 +192,11 @@ export default function Admin() {
       key: 'id',
       render: (id, record) => (
         <div className='flex gap-x-4 justify-center items-center'>
-          {profile.id == id && (
+          {(profile.id == id || isSuperAdmin) && (
             <DisplayControl action='put' path='account/:id'>
               <Icon
                 size={22}
-                title='Sửa dơn hàng'
+                title='Sửa thông tin'
                 className='cursor-pointer'
                 onClick={() => {
                   open();
@@ -214,6 +219,18 @@ export default function Admin() {
                 openRole();
                 setId(record.id);
                 setRole(record.typeAdmin);
+              }}
+            />
+          </DisplayControl>
+          <DisplayControl action='post' path='account/:id/change-pass'>
+            <MdPassword
+              size={22}
+              title='Sửa mật khẩu'
+              className='cursor-pointer'
+              onClick={() => {
+                openPass();
+                _formPass.setFieldValue('oldPass', record.pass);
+                setId(record.id);
               }}
             />
           </DisplayControl>
@@ -256,7 +273,11 @@ export default function Admin() {
   };
 
   const onChangeRole = (checkedValues) => {
-    setRole(checkedValues);
+    if (_.includes(checkedValues, 0)) {
+      setRole([0, 1, 2, 3]);
+    } else {
+      setRole(checkedValues);
+    }
   };
 
   const handleOkRole = () => {
@@ -268,19 +289,73 @@ export default function Admin() {
     setId('');
   };
 
+  const handleOkPass = () => {
+    _formPass
+      .validateFields()
+      .then((values) => {
+        dispatch(
+          actions.actionChangePass({
+            params: { pass: values.pass, id: _id },
+            callbacks: {
+              onSuccess(data) {
+                openNotification({
+                  description: 'Đổi mật khâu thành công',
+                  type: 'success',
+                });
+                getData();
+                handleClosePass();
+              },
+            },
+          })
+        );
+      })
+      .catch(console.log);
+  };
+
+  const handleClosePass = () => {
+    closePass();
+    _formPass.resetFields();
+  };
+  const handleSearch = (e) => {
+    const { value } = e.target;
+    setData((draft) => {
+      draft.arg = value;
+    });
+    getDataDebounce(value);
+  };
+
+  const getDataDebounce = useRef(
+    _.debounce((value) => {
+      getData({ current: 1, arg: value });
+    }, WAIT_TIME_DEBOUNCE)
+  ).current;
+
   return (
-    <div className='text-right'>
-      <DisplayControl action='post' path='account'>
-        <Button
-          className='mb-3'
-          onClick={() => {
-            open();
+    <>
+      <div className='flex justify-between mb-3'>
+        <Input
+          className='w-96'
+          value={_data.arg}
+          onChange={(event) => {
+            const { value } = event.target;
+            setData((draft) => {
+              draft.arg = value;
+            });
+            handleSearch(value);
           }}
-          type='primary'
-        >
-          Thêm quản trị viên
-        </Button>
-      </DisplayControl>
+          placeholder='Tên đăng nhập, họ và tên hoặc sđt admin'
+        />
+        <DisplayControl action='post' path='account'>
+          <Button
+            onClick={() => {
+              open();
+            }}
+            type='primary'
+          >
+            Thêm quản trị viên
+          </Button>
+        </DisplayControl>
+      </div>
       <Table
         bordered
         rowKey={'id'}
@@ -308,6 +383,9 @@ export default function Admin() {
             ]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item label='Mật khẩu mặc định'>
+            <Input disabled value='123456' />
           </Form.Item>
           <Form.Item
             label='Email'
@@ -401,6 +479,22 @@ export default function Admin() {
           </Row>
         </Checkbox.Group>
       </Modal>
-    </div>
+      <Modal width={600} onOk={handleOkPass} title='Sửa mật khẩu' onCancel={handleClosePass} open={isOpenPass}>
+        <Form {...layout} name='basic' className='m-auto' form={_formPass}>
+          <Form.Item
+            name='pass'
+            label='Mật khẩu mới'
+            rules={[
+              {
+                required: true,
+                message: 'Mật khẩu mới không được để trống',
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
   );
 }

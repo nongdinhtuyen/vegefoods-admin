@@ -55,7 +55,7 @@ function App() {
           }
         >
           <Route index element={<Bills />} />
-          <Route path='/:id' element={<Bills />} />
+          <Route path='receipt/:id' element={<Bills />} />
           <Route path='product' element={<Product />} />
           <Route path='productType' element={<ProductType />} />
           <Route path='provider' element={<Provider />} />

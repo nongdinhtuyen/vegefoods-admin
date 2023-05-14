@@ -34,4 +34,8 @@ export default class AccountRequest extends BaseRequest {
     const url = `${prefix}/${params.id}/role`;
     return this.post(url, params);
   }
+  changePass(params) {
+    const url = `${prefix}/${params.id}/change-pass`;
+    return this.post(url, params);
+  }
 }
