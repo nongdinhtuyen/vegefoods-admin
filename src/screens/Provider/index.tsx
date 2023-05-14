@@ -207,7 +207,7 @@ export default function Provider() {
       productActions.actionGetProduct({
         params: {
           current,
-          count: DEFAULT_LARGE_PAGE_SIZE,
+          count: 100,
           body: {
             name: search,
             remaining: -1,
@@ -259,7 +259,6 @@ export default function Provider() {
             maxTagCount='responsive'
             placeholder='Sản phẩm nhà cung cấp'
             onChange={(value, option: any) => {
-              console.log(value);
               getData({
                 current: 1,
                 pid: value,
