@@ -49,6 +49,7 @@ export default function Bills() {
   const { open: openReject, close: closeReject, isOpen: isOpenReject } = useToggle();
   const { open: openReceipt, close: closeReceipt, isOpen: isOpenReceipt } = useToggle();
   const { open: openExcel, close: closeExcel, isOpen: isOpenExcel } = useToggle();
+  const [_urlExcel, setUrlExcel] = useState('');
   const [_item, setItem] = useState<any>({});
   const [_id, setId] = useState(0);
   const [_updateItem, setUpdateItem] = useState({});
@@ -351,7 +352,12 @@ export default function Bills() {
   };
 
   const handleOkExcel = () => {
-    utils.downloadExcel(`/receipt/sale-receipt`, { from: dayjs(_time[0]).unix(), to: dayjs(_time[1]).unix() });
+    utils.downloadExcel(_urlExcel, { from: dayjs(_time[0]).unix(), to: dayjs(_time[1]).unix() });
+  };
+
+  const handleExcel = (url) => {
+    setUrlExcel(url);
+    openExcel();
   };
 
   return (
@@ -374,7 +380,14 @@ export default function Bills() {
             getData({ typeStatus: value, current: 1 });
           }}
         />
-        <Button onClick={openExcel}>Thống kê đơn hàng</Button>
+        <Space>
+          <Button type='primary' onClick={() => handleExcel('receipt/sale-receipt')}>
+            Thống kê đơn hàng
+          </Button>
+          <Button type='primary' onClick={() => handleExcel('warehouse/revenue')}>
+            Thống kê doanh thu
+          </Button>
+        </Space>
       </div>
       <Table
         bordered
@@ -433,7 +446,7 @@ export default function Bills() {
         <PrintBill data={_printData} open={openPrint} close={closePrint} isOpen={isPrint} />
       </div>
       <Modal
-        title={<div className='text-2xl text-center'>Thống kê đơn hàng</div>}
+        title={<div className='text-2xl text-center'>{_urlExcel === 'receipt/sale-receipt' ? 'Thống kê đơn hàng' : 'Thống kê doanh thu'}</div>}
         onCancel={handleCloseExcel}
         onOk={handleOkExcel}
         open={isOpenExcel}

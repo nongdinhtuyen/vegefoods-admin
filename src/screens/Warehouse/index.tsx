@@ -45,6 +45,8 @@ export default function Warehouse() {
   const [_detail, setDetail] = useState<any>({});
   const [_isEdit, setIsEdit] = useState(false);
   const [_provider, setProvider] = useState([]);
+  const [_time, setTime] = useState([dayjs().startOf('day'), dayjs().endOf('day')]);
+  const { open: openExcel, close: closeExcel, isOpen: isOpenExcel } = useToggle();
 
   const getProvider = () => {
     dispatch(
@@ -86,7 +88,6 @@ export default function Warehouse() {
         params: { id },
         callbacks: {
           onSuccess({ data, total }) {
-            console.log('🚀 ~ file: index.tsx:88 ~ onSuccess ~ data:', data);
             setDetail(data);
           },
         },
@@ -439,6 +440,18 @@ export default function Warehouse() {
     _form.resetFields();
   };
 
+  const handleDownloadExcel = (time) => {
+    setTime(time);
+  };
+
+  const handleCloseExcel = () => {
+    closeExcel();
+  };
+
+  const handleOkExcel = () => {
+    utils.downloadExcel(`warehouse/warehouse`, { from: dayjs(_time[0]).unix(), to: dayjs(_time[1]).unix() });
+  };
+
   return (
     <>
       <Tabs
@@ -464,6 +477,11 @@ export default function Warehouse() {
                 }}
               >
                 Thêm phiếu nhập
+              </Button>
+            </DisplayControl>
+            <DisplayControl path='warehouse/warehouse' action='get'>
+              <Button type='primary' className='ml-4' onClick={openExcel}>
+                Thống kê xuất nhập kho
               </Button>
             </DisplayControl>
           </>
@@ -529,6 +547,24 @@ export default function Warehouse() {
         close={close}
         isEdit={_isEdit}
       />
+      <Modal
+        title={<div className='text-2xl text-center'>Thống kê xuất nhập kho</div>}
+        onCancel={handleCloseExcel}
+        onOk={handleOkExcel}
+        open={isOpenExcel}
+        okText='Xác nhận'
+        cancelText='Hủy'
+        className='top-10'
+      >
+        <DatePicker.RangePicker
+          className='w-full'
+          showTime={{ format: 'HH:mm:ss' }}
+          format='DD/MM/YYYY HH:mm:ss'
+          disabledDate={(current) => current && current > dayjs().endOf('day')}
+          value={[_time[0], _time[1]]}
+          onChange={handleDownloadExcel}
+        />
+      </Modal>
     </>
   );
 }
