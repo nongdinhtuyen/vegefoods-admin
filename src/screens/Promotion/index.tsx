@@ -40,21 +40,27 @@ export default function Promotion() {
     total: 0,
   });
   const [_product, setProduct] = useState();
-  const [_item, setItem] = useState<any>({});
+  const [_price, setPrice] = useState<number>(0);
   const [_id, setId] = useState(0);
+  const [_item, setItem] = useState<any>({});
+  const [_isEdit, setIsEdit] = useState<any>(false);
 
   const getData = ({ current = _data.current } = {}) => {
+    setData((draft) => {
+      draft.current = current;
+    });
     dispatch(
       actions.actionGetPromotion({
         params: {
           current,
-          count: DEFAULT_PAGE_SIZE,
+          count: DEFAULT_SMALL_PAGE_SIZE,
           isActive: -1,
         },
         callbacks: {
           onSuccess({ data, total }) {
             setData((draft) => {
               draft.data = data;
+              draft.total = total;
             });
           },
         },
@@ -93,6 +99,13 @@ export default function Promotion() {
     if (dayjs().unix() < record.startDate) {
       return <Tag color='orange'>Chưa bắt đầu</Tag>;
     }
+  };
+
+  const checkIsActive = (record) => {
+    if (dayjs().isAfter(record.endDate * 1000)) {
+      return false;
+    }
+    return record.isActive;
   };
 
   const columns: any = [
@@ -158,17 +171,24 @@ export default function Promotion() {
       dataIndex: 'isActive',
       key: 'isActive',
       render: (isActive, record) => (
-        <DisplayControl action='put' path='promotion/:id' render={!isActive ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
+        <DisplayControl action='put' path='promotion/:id' render={!checkIsActive(record) ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
           <Switch
-            checked={isActive}
+            checked={checkIsActive(record)}
             onChange={(checked) => {
-              _form.setFieldsValue({
-                ...record,
-                isActive: checked,
-                time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
-              });
-              setId(record.id);
-              handleOk();
+              console.log('🚀 ~ file: index.tsx:191 ~ Promotion ~ checked:', checked);
+
+              if (!checkIsActive(record)) {
+                openNotification({
+                  description: 'Khuyến mãi đã vượt quá thời gian',
+                  type: 'warning',
+                });
+              } else {
+                setIsEdit(false);
+                setItem(record);
+                setPrice(record.productList.price);
+                setId(record.id);
+                handleOk(checked);
+              }
             }}
           />
         </DisplayControl>
@@ -184,11 +204,13 @@ export default function Promotion() {
         <DisplayControl action='put' path='promotion/:id'>
           <Icon
             size={22}
-            title='Sửa dơn hàng'
+            title='Sửa khuyến mại'
             className='cursor-pointer'
             onClick={() => {
               open();
               setId(record.id);
+              setIsEdit(true);
+              setPrice(record.productList.price);
               _form.setFieldsValue({
                 ...record,
                 time: [dayjs(record.startDate * 1000), dayjs(record.endDate * 1000)],
@@ -201,34 +223,40 @@ export default function Promotion() {
     },
   ];
 
-  const handleOk = () => {
-    _form
-      .validateFields()
-      .then((values) => {
-        const [startDate, endDate] = [dayjs(values.time[0]).unix(), dayjs(values.time[1]).unix()];
-        const action = _id ? 'actionUpdatePromotion' : 'actionCreatePromotion';
-        dispatch(
-          actions[action]({
-            params: {
-              ...values,
-              startDate,
-              endDate,
-              id: _id,
+  const handleOk = (checked = true) => {
+    const action = _id ? 'actionUpdatePromotion' : 'actionCreatePromotion';
+    const dispatchAction = (value) =>
+      dispatch(
+        actions[action]({
+          params: value,
+          callbacks: {
+            onSuccess(data) {
+              openNotification({
+                description: _id ? 'Sửa khuyến mại cho sản phẩm thành công' : 'Thêm khuyến mại cho sản phẩm thành công',
+                type: 'success',
+              });
+              getData();
+              handleClose();
             },
-            callbacks: {
-              onSuccess(data) {
-                openNotification({
-                  description: _id ? 'Sửa khuyến mại cho sản phẩm thành công' : 'Thêm khuyến mại cho sản phẩm thành công',
-                  type: 'success',
-                });
-                getData();
-                handleClose();
-              },
-            },
-          })
-        );
-      })
-      .catch(console.log);
+          },
+        })
+      );
+    if (_id && !_isEdit) {
+      dispatchAction({ ..._item, startDate: _item.startDate, endDate: _item.endDate, id: _id, isActive: checked });
+    } else {
+      _form
+        .validateFields()
+        .then((values) => {
+          const [startDate, endDate] = [dayjs(values.time[0]).unix(), dayjs(values.time[1]).unix()];
+          dispatchAction({
+            ...values,
+            startDate,
+            endDate,
+            id: _id,
+          });
+        })
+        .catch((e) => console.log(e));
+    }
   };
 
   const handleClose = () => {
@@ -244,6 +272,9 @@ export default function Promotion() {
           onClick={() => {
             open();
             setId(0);
+            _form.setFieldsValue({
+              isActive: true,
+            });
           }}
           className='mb-3'
         >
@@ -264,7 +295,7 @@ export default function Promotion() {
           hideOnSinglePage: true,
         }}
       />
-      <Modal width={600} onOk={() => handleOk()} title={_id ? 'Sửa mã giảm giá' : 'Thêm mã giảm giá'} onCancel={handleClose} open={isOpen}>
+      <Modal width={700} onOk={() => handleOk()} title={_id ? 'Sửa mã giảm giá' : 'Thêm mã giảm giá'} onCancel={handleClose} open={isOpen}>
         <Form {...layout} labelWrap className='mt-4' labelAlign='left' form={_form}>
           <Form.Item
             label='Sản phẩm'
@@ -278,7 +309,7 @@ export default function Promotion() {
             <Select
               showSearch
               className='w-full'
-              onChange={(value, option: any) => setItem(option.item)}
+              onChange={(value, option: any) => setPrice(option.item.price)}
               filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
               options={_.map(_product, (item: any) => ({
                 label: (
@@ -310,7 +341,7 @@ export default function Promotion() {
               </Form.Item>
             )}
           </Form.Item>
-          <Form.Item hidden name='isActive'>
+          <Form.Item hidden valuePropName='checked' name='isActive'>
             <Switch />
           </Form.Item>
           <Form.Item shouldUpdate noStyle>
@@ -321,10 +352,12 @@ export default function Promotion() {
                 name='price'
                 rules={[
                   {
-                    validator(rule, value, callback) {
-                      if (value > _item.price) {
-                        return Promise.reject(`Giá khuyến mãi không được lớn hơn ${utils.formatCurrency(_item.price)} VNĐ`);
+                    validator(rule, value) {
+                      console.log('🚀 ~ file: index.tsx:338 ~ validator ~ _price:', _price);
+                      if (value > _price) {
+                        return Promise.reject(`Giá khuyến mãi không được lớn hơn ${utils.formatCurrency(_price)} VNĐ`);
                       }
+                      return Promise.resolve();
                     },
                   },
                 ]}

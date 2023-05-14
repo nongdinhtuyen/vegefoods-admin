@@ -97,7 +97,6 @@ export default function Warehouse() {
 
   useEffect(() => {
     getData();
-    getProvider();
   }, []);
 
   const importExcel = async (id) => {
@@ -546,6 +545,7 @@ export default function Warehouse() {
         isOpen={isOpen}
         close={close}
         isEdit={_isEdit}
+        getProvider={getProvider}
       />
       <Modal
         title={<div className='text-2xl text-center'>Thống kê xuất nhập kho</div>}

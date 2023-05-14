@@ -24,47 +24,47 @@ interface DataType {
   price: number;
 }
 
-export default function ProductsOffered({ isOpen, close, id }) {
+export default function ProductsOffered({ isOpen, close, id, product, getData }) {
   const dispatch = useAppDispatch();
-  const [_product, setProduct] = useImmer({
-    total: 0,
-    current: 1,
-    data: [],
-  });
+  // const [_product, setProduct] = useImmer({
+  //   total: 0,
+  //   current: 1,
+  //   data: [],
+  // });
   const [_productOffer, setProductOffer] = useState<any>([]);
   const [_form] = Form.useForm();
   const [_isUpdate, setIsUpdate] = useState(false);
   const [_item, setItem] = useState<any>({});
 
-  const getData = ({ current = _product.current, search = '' } = {}) => {
-    setProduct((draft) => {
-      draft.current = current;
-    });
-    dispatch(
-      productActions.actionGetProduct({
-        params: {
-          current,
-          count: DEFAULT_LARGE_PAGE_SIZE,
-          body: {
-            name: search,
-            remaining: -1,
-            type_product: [],
-          },
-        },
-        callbacks: {
-          onSuccess({ data, total }) {
-            setProduct((draft) => {
-              draft.data = data.products;
-              draft.total = total;
-            });
-          },
-        },
-      })
-    );
-  };
+  // const getData = ({ current = _product.current, search = '' } = {}) => {
+  //   setProduct((draft) => {
+  //     draft.current = current;
+  //   });
+  //   dispatch(
+  //     productActions.actionGetProduct({
+  //       params: {
+  //         current,
+  //         count: DEFAULT_LARGE_PAGE_SIZE,
+  //         body: {
+  //           name: search,
+  //           remaining: -1,
+  //           type_product: [],
+  //         },
+  //       },
+  //       callbacks: {
+  //         onSuccess({ data, total }) {
+  //           setProduct((draft) => {
+  //             draft.data = data.products;
+  //             draft.total = total;
+  //           });
+  //         },
+  //       },
+  //     })
+  //   );
+  // };
 
   useEffect(() => {
-    getData();
+    // getData();
   }, []);
 
   useEffect(() => {
@@ -209,9 +209,9 @@ export default function ProductsOffered({ isOpen, close, id }) {
     setIsUpdate(false);
   };
 
-  const handleSearch = _.debounce((value) => {
-    getData({ current: 1, search: value });
-  }, WAIT_TIME_DEBOUNCE);
+  // const handleSearch = _.debounce((value) => {
+  //   getData({ current: 1, search: value });
+  // }, WAIT_TIME_DEBOUNCE);
 
   const addProductOffer = () => {
     const { id, price } = _form.getFieldsValue();
@@ -252,9 +252,9 @@ export default function ProductsOffered({ isOpen, close, id }) {
             showSearch
             className='w-full'
             onChange={(value, option: any) => setItem(option)}
-            onSearch={handleSearch}
+            // onSearch={handleSearch}
             filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
-            options={_.map(_product.data, (item: any) => ({
+            options={_.map(product.data, (item: any) => ({
               label: (
                 <div className='flex gap-x-1 items-center'>
                   <Avatar size='small' src={utils.baseUrlImage(item.img)} alt={item.img} />

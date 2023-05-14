@@ -17,7 +17,7 @@ import { useImmer } from 'use-immer';
 import _ from 'lodash';
 
 const layout = {
-  labelCol: { span: 6 },
+  labelCol: { span: 8 },
   wrapperCol: { span: 18 },
 };
 
@@ -25,8 +25,10 @@ export default function Profile() {
   const dispatch = useAppDispatch();
   const { profile } = useAppSelector((state) => state.accountReducer);
   const { isOpen, close, open } = useToggle();
+  const { isOpen: isOpenPass, close: closePass, open: openPass } = useToggle();
   const [_form] = Form.useForm();
   const [_info, setInfo] = useState<any>({});
+  const [_formPass] = Form.useForm();
 
   const getData = () => {
     dispatch(
@@ -77,12 +79,40 @@ export default function Profile() {
     close();
   };
 
+  const handleOkPass = () => {
+    _formPass
+      .validateFields()
+      .then((values) => {
+        dispatch(
+          actions.actionChangePass({
+            params: { pass: values.pass, id: profile.id },
+            callbacks: {
+              onSuccess(data) {
+                openNotification({
+                  description: 'Đổi mật khẩu thành công',
+                  type: 'success',
+                });
+                getData();
+                handleClosePass();
+              },
+            },
+          })
+        );
+      })
+      .catch(console.log);
+  };
+
+  const handleClosePass = () => {
+    closePass();
+    _formPass.resetFields();
+  };
+
   return (
     <div className='bg-white p-4 rounded-xl'>
       <Descriptions
         title='Thông tin cá nhân'
         extra={
-          <DisplayControl action='put' path='account/:id'>
+          <Space>
             <Button
               className='mb-3'
               onClick={() => {
@@ -91,9 +121,12 @@ export default function Profile() {
               }}
               type='primary'
             >
-              Sửa thông tin
+              Sửa thông tin cá nhân
             </Button>
-          </DisplayControl>
+            <Button className='mb-3' onClick={openPass} type='primary'>
+              Đổi mật khẩu
+            </Button>
+          </Space>
         }
       >
         <Descriptions.Item label='Tên đăng nhập'>{_info.userName}</Descriptions.Item>
@@ -189,6 +222,44 @@ export default function Profile() {
             ]}
           >
             <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal width={600} onOk={handleOkPass} title='Sửa mật khẩu' onCancel={handleClosePass} open={isOpenPass}>
+        <Form {...layout} name='basic' className='m-auto' form={_formPass}>
+          <Form.Item
+            name='pass'
+            label='Mật khẩu mới'
+            rules={[
+              {
+                required: true,
+                message: 'Mật khẩu mới không được để trống',
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            label='Xác nhận mật khẩu'
+            name='confirm'
+            dependencies={['pass']}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: 'Mật khẩu xác nhận không được để trống',
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('pass') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Mật khẩu xác nhận khác với mật khẩu mới'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
           </Form.Item>
         </Form>
       </Modal>

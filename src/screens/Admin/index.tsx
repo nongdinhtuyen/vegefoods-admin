@@ -18,7 +18,7 @@ import { useImmer } from 'use-immer';
 import _ from 'lodash';
 
 const layout = {
-  labelCol: { span: 6 },
+  labelCol: { span: 8 },
   wrapperCol: { span: 18 },
 };
 
@@ -299,7 +299,7 @@ export default function Admin() {
             callbacks: {
               onSuccess(data) {
                 openNotification({
-                  description: 'Đổi mật khâu thành công',
+                  description: 'Đổi mật khẩu thành công',
                   type: 'success',
                 });
                 getData();
@@ -491,7 +491,29 @@ export default function Admin() {
               },
             ]}
           >
-            <Input />
+            <Input.Password />
+          </Form.Item>
+          <Form.Item
+            label='Xác nhận mật khẩu'
+            name='confirm'
+            dependencies={['pass']}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: 'Mật khẩu xác nhận không được để trống',
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('pass') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Mật khẩu xác nhận khác với mật khẩu mới'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
           </Form.Item>
         </Form>
       </Modal>

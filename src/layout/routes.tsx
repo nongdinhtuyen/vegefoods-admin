@@ -19,6 +19,7 @@ type RouteType = {
   children?: any;
   auth?: string;
   isHidden?: boolean;
+  isSuperAdmin?: boolean;
 };
 
 const routes: RouteType[] = [

@@ -66,8 +66,8 @@ export default function Login(props) {
           className='m-auto'
           layout='vertical'
           initialValues={{
-            pass: '123456',
-            username: 'lanln',
+            pass: '1',
+            username: 'lanlan',
           }}
         >
           <Form.Item

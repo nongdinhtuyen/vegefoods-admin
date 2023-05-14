@@ -32,7 +32,7 @@ interface DataType {
   total: number;
 }
 
-const AddOrderEntryForm = ({ detail, id, provider, isOpen, close, getDataWarehouse, isEdit }) => {
+const AddOrderEntryForm = ({ detail, id, provider, isOpen, close, getProvider, getDataWarehouse, isEdit }) => {
   const [_form] = Form.useForm();
   const dispatch = useAppDispatch();
   const [_dataSource, setDataSource] = useState<DataType[]>([]);
@@ -52,9 +52,11 @@ const AddOrderEntryForm = ({ detail, id, provider, isOpen, close, getDataWarehou
 
   useEffect(() => {
     if (isEdit) {
+      console.log('12312312321');
       const newData = renderData(detail);
       setDataSource(newData);
       setId(id);
+      getProvider();
     }
   }, [isEdit, id, detail]);
 
