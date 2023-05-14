@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import useToggle from 'hooks/useToggle';
 import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
-import { IoReceiptOutline, RiFileExcel2Line } from 'react-icons/all';
+import { AiOutlinePrinter, RiFileExcel2Line } from 'react-icons/all';
 import { useLocation } from 'react-router-dom';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
@@ -237,7 +237,7 @@ export default function Bills() {
           </>
         )}
         {/* {_.includes([2, 4, 5, 3, 6], Salereceipt?.status) && ( */}
-        <IoReceiptOutline size={24} title='Sổ người nhận' className='cursor-pointer' onClick={() => printReceipt(record)} />
+        <AiOutlinePrinter size={24} title='Sổ người nhận' className='cursor-pointer' onClick={() => printReceipt(record)} />
         {/* )} */}
         {/* <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => downloadExcel(record)} /> */}
       </div>

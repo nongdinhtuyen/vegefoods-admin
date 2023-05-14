@@ -196,7 +196,7 @@ export default function Customer() {
       render: (id) => (
         <div className='flex items-center gap-x-4'>
           <MdOutlineMap size={20} title='Sổ người nhận' className='cursor-pointer' onClick={() => openAddress(id)} />
-          <IoReceiptOutline size={20} title='Sổ người nhận' className='cursor-pointer' onClick={() => openReceipt(id)} />
+          <IoReceiptOutline size={20} title='Lịch sử mua hàng' className='cursor-pointer' onClick={() => openReceipt(id)} />
           {/* <AiOutlinePrinter size={20} title='In hóa đơn' className='cursor-pointer' onClick={() => printReceipt(id)} /> */}
         </div>
       ),
