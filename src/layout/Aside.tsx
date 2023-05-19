@@ -73,6 +73,7 @@ export default function Aside() {
   const checkRoutes = _.filter(routes, (route) => _.includes(_.keys(adminAuth).toString(), route.auth));
   const items: ItemType[] | any = _.chain(isSuperAdmin ? routes : checkRoutes)
     .filter((route) => !route.isHidden)
+    .filter((route) => (isSuperAdmin ? true : !route.isSuperAdmin))
     .map((route) => {
       if (route.children) {
         return getItem(route.key, route.title, route.icon, renderChild(route.children));

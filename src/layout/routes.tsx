@@ -85,6 +85,7 @@ const routes: RouteType[] = [
     key: 'admin',
     path: 'admin',
     auth: 'account',
+    isSuperAdmin: true,
   },
   {
     title: 'Hóa đơn',
