@@ -69,7 +69,8 @@ function NewHeader() {
       <div className='text uppercase'>{_title}</div>
       <div className='right' id='area'>
         <Dropdown menu={{ items }} placement='bottomRight'>
-          <div className='w-10 text-left flex'>
+          <div className='text-left flex items-center gap-x-4'>
+            {profile.name}
             <Avatar className='text-[#f56a00] bg-[#fde3cf] cursor-pointer'>{profile.name.charAt(0)}</Avatar>
           </div>
         </Dropdown>

@@ -182,7 +182,7 @@ export default function Customer() {
       dataIndex: 'status',
       key: 'status',
       render: (status, record) => (
-        <DisplayControl path='customer/:id' action='post' render={status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
+        <DisplayControl path='customer/:id' action='post' render={status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoạt'}>
           <Switch checked={status === 0} onChange={(checked) => activeUser(record.id, checked ? 0 : 1)} />
         </DisplayControl>
       ),

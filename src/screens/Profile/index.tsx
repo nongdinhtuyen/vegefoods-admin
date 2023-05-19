@@ -107,6 +107,13 @@ export default function Profile() {
     _formPass.resetFields();
   };
 
+  const handleRole = () => {
+    if (_.includes(profile.typeAdmin, 0)) {
+      return consts.role[0];
+    }
+    return _.map(profile.typeAdmin, (item) => <div>{consts.role[item]}</div>);
+  };
+
   return (
     <div className='bg-white p-4 rounded-xl'>
       <Descriptions
@@ -135,7 +142,8 @@ export default function Profile() {
         <Descriptions.Item label='Giới tính'>{consts.gender[_info.sex]}</Descriptions.Item>
         <Descriptions.Item label='Địa chỉ'>{_info.address}</Descriptions.Item>
         <Descriptions.Item label='Email'>{_info.email}</Descriptions.Item>
-        <Descriptions.Item label='Trạng thái'>{_info.status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoat'}</Descriptions.Item>
+        <Descriptions.Item label='Trạng thái'>{_info.status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoạt'}</Descriptions.Item>
+        <Descriptions.Item label='Phân quyền'>{handleRole()}</Descriptions.Item>
       </Descriptions>
       <Modal width={600} onOk={handleOk} title={`Cập nhật thông tin cá nhân`} onCancel={handleClose} open={isOpen}>
         <Form {...layout} name='basic' className='m-auto' form={_form}>

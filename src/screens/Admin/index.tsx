@@ -179,7 +179,7 @@ export default function Admin() {
       key: 'status',
       // render: (status) => (status === 0 ? 'Đang hoạt động' : 'Chưa kích hoạt'),
       render: (status, record) => (
-        <DisplayControl path='account/:id/status' action='put' render={status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoat'}>
+        <DisplayControl path='account/:id/status' action='put' render={status === 1 ? 'Chưa kích hoạt' : 'Đang kích hoạt'}>
           <Switch checked={status === 0} onChange={(checked) => activeAdmin(record.id, checked ? 0 : 1)} />
         </DisplayControl>
       ),
@@ -384,9 +384,11 @@ export default function Admin() {
           >
             <Input />
           </Form.Item>
-          <Form.Item label='Mật khẩu mặc định'>
-            <Input disabled value='123456' />
-          </Form.Item>
+          {!_id && (
+            <Form.Item label='Mật khẩu mặc định'>
+              <Input disabled value='123456' />
+            </Form.Item>
+          )}
           <Form.Item
             label='Email'
             name='email'
@@ -442,6 +444,10 @@ export default function Admin() {
                 type: 'number',
                 message: 'Số điện thoại không hợp lệ',
                 transform: (value) => _.toNumber(value),
+              },
+              {
+                max: 10,
+                message: 'Số điện thoại không hợp lệ',
               },
             ]}
           >
