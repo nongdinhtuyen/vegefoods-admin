@@ -218,7 +218,7 @@ export default function Category() {
             ascend: 1,
             descend: 0,
           };
-          getData({ current: 1, remain: sort[sorter.order] });
+          getData({ current: pagination.current, remain: sort[sorter.order] });
         }}
         pagination={{
           onChange: (page) => getData({ current: page }),

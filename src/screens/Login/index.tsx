@@ -58,18 +58,7 @@ export default function Login(props) {
     <LoginWrapper>
       <div className='w-modal m-auto p-12 rounded-3xl bg-[#ffffffe0] text-center'>
         <div className='text-3xl mb-12 text-zinc-800 font-bold'>Đăng nhập</div>
-        <Form
-          size='large'
-          {...layout}
-          name='basic'
-          onFinish={onFinish}
-          className='m-auto'
-          layout='vertical'
-          initialValues={{
-            pass: '1',
-            username: 'lanlan',
-          }}
-        >
+        <Form autoComplete='' size='large' {...layout} name='basic' onFinish={onFinish} className='m-auto' layout='vertical'>
           <Form.Item
             name='username'
             rules={[

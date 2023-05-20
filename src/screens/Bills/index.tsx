@@ -110,10 +110,10 @@ export default function Bills() {
   };
 
   const handleOrder = (Salereceipt, status, text) => {
-    if (status === 6) {
-      openReject();
-      return;
-    }
+    // if (status === 6) {
+    //   openReject();
+    //   return;
+    // }
     if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
       handleAction(actions.actionReceiptOrder, Salereceipt.id, status, text);
     }
@@ -168,8 +168,9 @@ export default function Bills() {
                 size={22}
                 className={handleClassName(Salereceipt)}
                 onClick={() => {
-                  handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
+                  // handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
                   setItem(record);
+                  openReject();
                 }}
                 icon={'cancel'}
               />
@@ -191,7 +192,7 @@ export default function Bills() {
           <DisplayControl path='receipt/warehouse' action='post'>
             <Icon
               title='Xác nhận xuất kho'
-              size={30}
+              size={22}
               className='cursor-pointer'
               onClick={() => handleWarehouse(Salereceipt, 3, 'Xác nhận xuất kho')}
               icon={'ship'}
@@ -199,14 +200,14 @@ export default function Bills() {
           </DisplayControl>
         )}
         {Salereceipt?.status === 5 && (
-          <DisplayControl path='receipt/warehouse' action='post'>
+          <DisplayControl path='receipt/order' action='post'>
             <Icon
               title='Xác nhận hủy'
-              size={30}
+              size={22}
               className='cursor-pointer'
               onClick={() => {
                 setItem(record);
-                handleWarehouse(Salereceipt, 3, 'Hủy đơn hàng thành công');
+                handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
               }}
               icon={'waiting-cancel'}
             />

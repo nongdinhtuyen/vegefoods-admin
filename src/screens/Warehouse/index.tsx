@@ -473,6 +473,7 @@ export default function Warehouse() {
                 onClick={() => {
                   open();
                   setIsEdit(false);
+                  getProvider();
                 }}
               >
                 Thêm phiếu nhập

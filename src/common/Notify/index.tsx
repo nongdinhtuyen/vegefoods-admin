@@ -15,5 +15,6 @@ export const openNotification = ({ description = 'description', type = 'info' }:
     message: '',
     description,
     className: 'custom_open_notify',
+    placement: 'bottomRight',
   });
 };

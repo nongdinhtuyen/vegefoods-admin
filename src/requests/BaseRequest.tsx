@@ -39,21 +39,29 @@ class BaseRequest {
   }
 
   async _responseHandler(response) {
-    const { code } = response.data;
-    if (code >= 400) {
+    const { status, data } = response;
+    if (data.code >= 400) {
+      this._errorHandler(data);
+    }
+    if (status >= 400) {
       openNotification({
         description: 'Request failed',
         type: 'error',
       });
-      throw 'Request failed';
+      return;
     }
     return response.data;
   }
 
   _errorHandler(err) {
-    if (err.response && err.response.status === 401) {
+    if (err && err.code === 404 && err.msg === 'WrongPassOrAccount') {
       openNotification({
-        description: 'Bạn không có quyền',
+        description: 'Sai tài khoản hoặc mật khẩu',
+        type: 'error',
+      });
+    } else {
+      openNotification({
+        description: 'Bạn không có quyền truy cập',
         type: 'error',
       });
       store.dispatch({

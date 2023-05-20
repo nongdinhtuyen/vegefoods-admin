@@ -56,7 +56,7 @@ export default function Provider() {
       actions.actionGetProvider({
         params: {
           current,
-          count: DEFAULT_PAGE_SIZE,
+          count: 100,
           body: {
             arg,
             pid: _.map(pid, (item) => item + ''),
@@ -258,13 +258,13 @@ export default function Provider() {
             mode='multiple'
             maxTagCount='responsive'
             placeholder='Sản phẩm nhà cung cấp'
-            onChange={(value, option: any) => {
-              getData({
-                current: 1,
-                pid: value,
-              });
-            }}
-            onSearch={handleSearch}
+            // onChange={(value, option: any) => {
+            //   getData({
+            //     current: 1,
+            //     pid: value,
+            //   });
+            // }}
+            // onSearch={handleSearch}
             filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
             options={_.map(_product.data, (item: any) => ({
               label: (
@@ -312,8 +312,27 @@ export default function Provider() {
             <Input.TextArea />
           </Form.Item>
 
-          <Form.Item label='Số điện thoại' name='phone' required>
-            <Input />
+          <Form.Item
+            rules={[
+              {
+                required: true,
+                message: 'Số điện thoại không được để trống',
+              },
+              {
+                type: 'number',
+                message: 'Số điện thoại không hợp lệ',
+                transform: (value) => _.toNumber(value),
+              },
+              {
+                max: 10,
+                message: 'Số điện thoại không hợp lệ',
+              },
+            ]}
+            label='Số điện thoại'
+            name='phone'
+            required
+          >
+            <Input type='number' />
           </Form.Item>
           <Form.Item
             label='Email'

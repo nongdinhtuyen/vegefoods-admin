@@ -215,6 +215,10 @@ export default function Profile() {
                 message: 'Số điện thoại không hợp lệ',
                 transform: (value) => _.toNumber(value),
               },
+              {
+                max: 10,
+                message: 'Số điện thoại không hợp lệ',
+              },
             ]}
           >
             <Input type='number' />
