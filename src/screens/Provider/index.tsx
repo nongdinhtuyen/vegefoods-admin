@@ -258,12 +258,12 @@ export default function Provider() {
             mode='multiple'
             maxTagCount='responsive'
             placeholder='Sản phẩm nhà cung cấp'
-            // onChange={(value, option: any) => {
-            //   getData({
-            //     current: 1,
-            //     pid: value,
-            //   });
-            // }}
+            onChange={(value, option: any) => {
+              getData({
+                current: 1,
+                pid: value,
+              });
+            }}
             // onSearch={handleSearch}
             filterOption={(input, option) => (option?.name ?? '').toLowerCase().includes(input.toLowerCase())}
             options={_.map(_product.data, (item: any) => ({

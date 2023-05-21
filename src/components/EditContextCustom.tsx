@@ -72,6 +72,7 @@ export const EditableCell: React.FC<EditableCellProps> = ({ title, editable, chi
         rules={[
           {
             required: true,
+            message: 'Trường này không được để trống',
           },
         ]}
       >

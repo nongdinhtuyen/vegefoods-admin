@@ -236,7 +236,7 @@ export default function ProductsOffered({ isOpen, close, id, product, getData })
       footer={[
         null,
         <DisplayControl path='provider/:id' action='put'>
-          <Button>Xác nhận</Button>
+          <Button onClick={handleOk}>Xác nhận</Button>
         </DisplayControl>,
       ]}
       width={880}
