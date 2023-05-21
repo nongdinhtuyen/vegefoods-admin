@@ -169,32 +169,34 @@ const UpdateProduct = ({ isOpen, close, getData, item, isCreate }: Props) => {
             className='w-full'
           />
         </Form.Item>
-
-        <Form.Item
-          label='Số lượng còn lại'
-          name='remain'
-          rules={[
-            {
-              validator(rule, value, callback) {
-                if (!value) {
-                  return Promise.reject('Số lượng còn lại không hợp lệ');
-                }
-                if (value > item.remain) {
-                  return Promise.reject(`Số lượng còn lại không được quá ${item.remain}`);
-                }
-                return Promise.resolve();
+        {!isCreate && (
+          <Form.Item
+            label='Số lượng còn lại'
+            name='remain'
+            required
+            rules={[
+              {
+                validator(rule, value, callback) {
+                  if (!value) {
+                    return Promise.reject('Số lượng còn lại không hợp lệ');
+                  }
+                  if (value > item.remain) {
+                    return Promise.reject(`Số lượng còn lại không được quá ${item.remain}`);
+                  }
+                  return Promise.resolve();
+                },
               },
-            },
-          ]}
-        >
-          <InputNumber
-            controls={false}
-            formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            parser={(value: any) => value!.replace(/\$\s?|(,*)/g, '')}
-            min={0}
-            className='w-full'
-          />
-        </Form.Item>
+            ]}
+          >
+            <InputNumber
+              controls={false}
+              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={(value: any) => value!.replace(/\$\s?|(,*)/g, '')}
+              min={0}
+              className='w-full'
+            />
+          </Form.Item>
+        )}
 
         <Form.Item label='Đơn vị tính' name='unit' rules={[{ required: true }]}>
           <Input />
