@@ -177,7 +177,7 @@ const UpdateProduct = ({ isOpen, close, getData, item, isCreate }: Props) => {
             rules={[
               {
                 validator(rule, value, callback) {
-                  if (!value) {
+                  if (value < 0) {
                     return Promise.reject('Số lượng còn lại không hợp lệ');
                   }
                   if (value > item.remain) {

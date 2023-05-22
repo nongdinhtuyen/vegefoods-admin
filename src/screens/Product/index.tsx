@@ -165,7 +165,7 @@ export default function Category() {
   const handleSearch = (value) => {
     getData({
       current: 1,
-      name: value,
+      name: value.trim(),
     });
   };
 

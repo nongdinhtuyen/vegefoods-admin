@@ -143,7 +143,7 @@ export default function Bills() {
             <DisplayControl path='receipt/order' action='post'>
               <Icon
                 title='Phê duyệt đơn hàng'
-                size={22}
+                size={20}
                 className={handleClassName(Salereceipt)}
                 onClick={() => handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công')}
                 icon={'accept'}
@@ -151,7 +151,7 @@ export default function Bills() {
             </DisplayControl>
             <DisplayControl path='receipt/order/:id' action='post'>
               <Icon
-                size={22}
+                size={20}
                 title='Sửa đơn hàng'
                 onClick={() => {
                   openReceipt();
@@ -218,7 +218,7 @@ export default function Bills() {
             <DisplayControl path='receipt/warehouse' action='post'>
               <img
                 title='Giao hàng thành công'
-                height={23}
+                height={21}
                 className='cursor-pointer'
                 onClick={() => handleWarehouse(Salereceipt, 4, 'Xác nhận giao hàng thành công')}
                 src='/images/accept_file.svg'
@@ -227,7 +227,7 @@ export default function Bills() {
             <DisplayControl path='receipt/warehouse' action='post'>
               <img
                 title='Giao hàng thất bại'
-                height={23}
+                height={21}
                 className='cursor-pointer'
                 onClick={() => {
                   handleWarehouse(Salereceipt, 6, 'Xác nhận giao hàng thất bại');
@@ -239,7 +239,7 @@ export default function Bills() {
           </>
         )}
         {/* {_.includes([2, 4, 5, 3, 6], Salereceipt?.status) && ( */}
-        <AiOutlinePrinter size={24} title='Sổ người nhận' className='cursor-pointer' onClick={() => printReceipt(record)} />
+        <AiOutlinePrinter size={24} title='In hóa đơn' className='cursor-pointer' onClick={() => printReceipt(record)} />
         {/* )} */}
         {/* <RiFileExcel2Line title='Xuất file excel' size={20} className='cursor-pointer' onClick={() => downloadExcel(record)} /> */}
       </div>
