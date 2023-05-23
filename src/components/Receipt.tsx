@@ -25,6 +25,7 @@ function Receipt({ listReceipt }, ref) {
             <div>{listReceipt.Salereceipt?.phoneReceiver}</div>
             <div>{listReceipt.Salereceipt?.addressReceiver}</div>
           </div>
+          <Divider />
           <div className='flex justify-between'>
             <div>
               Đơn hàng <span className='font-semibold'>{listReceipt.Salereceipt?.id}</span> |{' '}
