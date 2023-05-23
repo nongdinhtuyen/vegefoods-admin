@@ -280,7 +280,7 @@ export default function Customer() {
 
   const getDataDebounce = useRef(
     _.debounce((value) => {
-      getData({ current: 1, arg: value });
+      getData({ current: 1, arg: value.trim() });
     }, WAIT_TIME_DEBOUNCE)
   ).current;
 

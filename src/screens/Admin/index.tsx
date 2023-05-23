@@ -316,8 +316,7 @@ export default function Admin() {
     closePass();
     _formPass.resetFields();
   };
-  const handleSearch = (e) => {
-    const { value } = e.target;
+  const handleSearch = (value) => {
     setData((draft) => {
       draft.arg = value;
     });
@@ -326,7 +325,7 @@ export default function Admin() {
 
   const getDataDebounce = useRef(
     _.debounce((value) => {
-      getData({ current: 1, arg: value });
+      getData({ current: 1, arg: value.trim() });
     }, WAIT_TIME_DEBOUNCE)
   ).current;
 
@@ -338,9 +337,6 @@ export default function Admin() {
           value={_data.arg}
           onChange={(event) => {
             const { value } = event.target;
-            setData((draft) => {
-              draft.arg = value;
-            });
             handleSearch(value);
           }}
           placeholder='Tên đăng nhập, họ và tên hoặc sđt admin'

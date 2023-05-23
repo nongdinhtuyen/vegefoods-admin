@@ -209,7 +209,7 @@ export default function Provider() {
           current,
           count: 100,
           body: {
-            name: search,
+            name: search.trim(),
             remaining: -1,
             type_product: [],
           },

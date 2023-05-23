@@ -2,6 +2,7 @@ import { LayoutContext } from './LayoutContainer';
 import routes from './routes';
 import { Badge, Layout, Menu, MenuProps, Space } from 'antd';
 import { ItemType } from 'antd/es/menu/hooks/useItems';
+import consts from 'consts';
 import React, { ReactNode, useContext, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +19,12 @@ const SiderWrapper = styled(Sider)`
   left: 0;
   top: 0;
   bottom: 0;
+  .ant-layout-sider-children {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+  }
   .text {
     padding: 17px;
     font-family: 'Inter', sans-serif;
@@ -36,6 +43,8 @@ export default function Aside() {
   const { collapsed } = useContext(LayoutContext);
   const location = useLocation();
   const { adminAuth, isSuperAdmin } = useAppSelector((state) => state.accountReducer);
+  const { profile } = useAppSelector((state) => state.accountReducer);
+  console.log('🚀 ~ file: Aside.tsx:46 ~ Aside ~ profile:', profile);
 
   function getItem(key: string, label: ReactNode, icon: ReactNode, children = null): ItemType[] | any {
     return { key, icon, children, label };
@@ -81,10 +90,19 @@ export default function Aside() {
       return getItem(route.key, renderLabel(route.title, route.path), route.icon);
     })
     .value();
+  const handleRole = () => {
+    if (_.includes(profile.typeAdmin, 0)) {
+      return consts.role[0];
+    }
+    return _.map(profile.typeAdmin, (item) => <div>- {consts.role[item]}</div>);
+  };
   return (
     <SiderWrapper theme={'light'} width={270} trigger={null} collapsed={collapsed} collapsible>
-      <div className='text'>VEGEFOODS</div>
-      <Menu onClick={onClick} selectedKeys={_currentKey} mode='inline' items={items} />
+      <div>
+        <div className='text'>VEGEFOODS</div>
+        <Menu className='!border-none' onClick={onClick} selectedKeys={_currentKey} mode='inline' items={items} />
+      </div>
+      <div className='p-4 text-left w-full'>Bạn có quyền: {handleRole()}</div>
     </SiderWrapper>
   );
 }

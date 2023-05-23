@@ -175,9 +175,7 @@ export default function Promotion() {
           <Switch
             checked={checkIsActive(record)}
             onChange={(checked) => {
-              console.log('🚀 ~ file: index.tsx:191 ~ Promotion ~ checked:', checked);
-
-              if (!checkIsActive(record)) {
+              if (dayjs().isAfter(record.endDate * 1000)) {
                 openNotification({
                   description: 'Khuyến mãi đã vượt quá thời gian',
                   type: 'warning',
@@ -244,18 +242,14 @@ export default function Promotion() {
     if (_id && !_isEdit) {
       dispatchAction({ ..._item, startDate: _item.startDate, endDate: _item.endDate, id: _id, isActive: checked });
     } else {
-      _form
-        .validateFields()
-        .then((values) => {
-          const [startDate, endDate] = [dayjs(values.time[0]).unix(), dayjs(values.time[1]).unix()];
-          dispatchAction({
-            ...values,
-            startDate,
-            endDate,
-            id: _id,
-          });
-        })
-        .catch((e) => console.log(e));
+      const values = _form.getFieldsValue();
+      const [startDate, endDate] = [dayjs(values.time[0]).unix(), dayjs(values.time[1]).unix()];
+      dispatchAction({
+        ...values,
+        startDate,
+        endDate,
+        id: _id,
+      });
     }
   };
 

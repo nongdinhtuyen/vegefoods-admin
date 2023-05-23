@@ -4,10 +4,12 @@ import BigNumber from 'bignumber.js';
 import utils from 'common/utils';
 import ProductComponent from 'components/ProductComponent';
 import { forwardRef } from 'react';
+import { FiMapPin } from 'react-icons/all';
 
 import _ from 'lodash';
 
 function Receipt({ listReceipt }, ref) {
+  console.log('🚀 ~ file: Receipt.tsx:12 ~ Receipt ~ listReceipt:', listReceipt);
   const renderDiscount = () => {
     return new BigNumber(listReceipt.Salereceipt?.total).times(listReceipt.Salereceipt?.rankDiscount).div(100).toNumber();
   };
@@ -15,12 +17,20 @@ function Receipt({ listReceipt }, ref) {
     <div ref={ref} className='bg-[#F2F2F2]'>
       <div className='max-w-4xl m-auto py-3'>
         <div key={listReceipt.Salereceipt?.id} className='rounded-md px-5 pt-3 bg-white mb-2'>
+          <div className='flex flex-col gap-y-1'>
+            <div className='flex items-center gap-x-2 mb-1'>
+              <FiMapPin className='text-primary' size={20} /> THÔNG TIN NGƯỜI NHẬN
+            </div>
+            <div className='font-bold'>{listReceipt.Salereceipt?.nameReceiver}</div>
+            <div>{listReceipt.Salereceipt?.phoneReceiver}</div>
+            <div>{listReceipt.Salereceipt?.addressReceiver}</div>
+          </div>
           <div className='flex justify-between'>
             <div>
               Đơn hàng <span className='font-semibold'>{listReceipt.Salereceipt?.id}</span> |{' '}
               {utils.formatTimeFromUnix(listReceipt.Salereceipt?.createDate, 'hh:mm:ss DD/MM/YYYY')}
             </div>
-            <ProductStatus status={listReceipt.Salereceipt?.status} typePayment={listReceipt.Salereceipt?.typePayment} />
+            {/* <ProductStatus status={listReceipt.Salereceipt?.status} typePayment={listReceipt.Salereceipt?.typePayment} /> */}
           </div>
           {_.map(listReceipt.Infosalereceipt, (item: any) => (
             <ProductComponent

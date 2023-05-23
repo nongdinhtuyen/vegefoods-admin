@@ -11,6 +11,8 @@ import Icon from 'icon-icomoon';
 import React, { useEffect, useState } from 'react';
 import { AiOutlinePrinter, RiFileExcel2Line } from 'react-icons/all';
 import { useLocation } from 'react-router-dom';
+import productActions from 'redux/actions/product';
+import providerActions from 'redux/actions/provider';
 import actions from 'redux/actions/receipt';
 import { useAppDispatch } from 'redux/store';
 import BillDetail from 'screens/Bills/BillDetail';
@@ -57,7 +59,12 @@ export default function Bills() {
   const [_printData, setPrintData] = useState({});
   const { open: openPrint, close: closePrint, isOpen: isPrint } = useToggle();
   const [_time, setTime] = useState([dayjs().startOf('day'), dayjs().endOf('day')]);
-
+  const [_productOffer, setProductOffer] = useState<any>([]);
+  const [_product, setProduct] = useImmer({
+    total: 0,
+    current: 1,
+    data: [],
+  });
   const getData = ({ current = _receipt.current, typeStatus = _receipt.typeStatus, uid = _receipt.uid } = {}) => {
     setReceipt((draft) => {
       draft.current = current;
@@ -77,6 +84,37 @@ export default function Bills() {
       })
     );
   };
+
+  const getProducts = ({ current = _product.current, search = '' } = {}) => {
+    setProduct((draft) => {
+      draft.current = current;
+    });
+    dispatch(
+      productActions.actionGetProduct({
+        params: {
+          current,
+          count: 100,
+          body: {
+            name: search.trim(),
+            remaining: -1,
+            type_product: [],
+          },
+        },
+        callbacks: {
+          onSuccess({ data, total }) {
+            setProduct((draft) => {
+              draft.data = data.products;
+              draft.total = total;
+            });
+          },
+        },
+      })
+    );
+  };
+
+  useEffect(() => {
+    getProducts();
+  }, []);
 
   useEffect(() => {
     if (location.state?.id) {
@@ -145,7 +183,11 @@ export default function Bills() {
                 title='Phê duyệt đơn hàng'
                 size={20}
                 className={handleClassName(Salereceipt)}
-                onClick={() => handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công')}
+                onClick={() => {
+                  if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
+                    handleOrder(Salereceipt, 1, 'Phê duyệt đơn hàng thành công');
+                  }
+                }}
                 icon={'accept'}
               />
             </DisplayControl>
@@ -154,9 +196,11 @@ export default function Bills() {
                 size={20}
                 title='Sửa đơn hàng'
                 onClick={() => {
-                  openReceipt();
-                  setId(Salereceipt.id);
-                  setUpdateItem(Infosalereceipt);
+                  if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
+                    openReceipt();
+                    setId(Salereceipt.id);
+                    setUpdateItem(Infosalereceipt);
+                  }
                 }}
                 className={handleClassName(Salereceipt)}
                 icon={'edit'}
@@ -168,9 +212,11 @@ export default function Bills() {
                 size={22}
                 className={handleClassName(Salereceipt)}
                 onClick={() => {
-                  // handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
-                  setItem(record);
-                  openReject();
+                  if (Salereceipt.typePayment === consts.TYPE_PAYMENT_COD) {
+                    // handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
+                    setItem(record);
+                    openReject();
+                  }
                 }}
                 icon={'cancel'}
               />
@@ -207,7 +253,8 @@ export default function Bills() {
               className='cursor-pointer'
               onClick={() => {
                 setItem(record);
-                handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
+                handleAction(actions.actionReceiptOrder, Salereceipt.id, 6, 'Phê duyệt hủy đơn hàng thành công');
+                // handleOrder(Salereceipt, 6, 'Hủy đơn hàng thành công');
               }}
               icon={'waiting-cancel'}
             />
@@ -442,7 +489,7 @@ export default function Bills() {
           </Form.Item>
         </Form>
       </Modal>
-      <UpdateBill getData={getData} close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
+      <UpdateBill product={_product} getData={getData} close={closeReceipt} isOpen={isOpenReceipt} updateItem={_updateItem} id={_id} />
       <div className='hidden'>
         <PrintBill data={_printData} open={openPrint} close={closePrint} isOpen={isPrint} />
       </div>

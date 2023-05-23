@@ -244,7 +244,11 @@ const AddOrderEntryForm = ({ detail, id, provider, isOpen, close, getProvider, g
           {({ getFieldValue }) =>
             getFieldValue('name') && (
               <Form.Item label='Ngày nhập' name='date' rules={[{ required: true }]}>
-                <DatePicker format={'DD/MM/YYYY HH:mm:ss'} showTime={{ format: 'hh:mm' }} />
+                <DatePicker
+                  format={'DD/MM/YYYY HH:mm:ss'}
+                  showTime={{ format: 'hh:mm' }}
+                  disabledDate={(current) => current && current < dayjs().startOf('day')}
+                />
               </Form.Item>
             )
           }
